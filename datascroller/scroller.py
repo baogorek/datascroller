@@ -58,6 +58,16 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
             end_row += 1
         elif key == 119 and end_row > 0: # Wind window back up - w key
             end_row -= 1
+        # Moving fast
+        elif key == 6 and end_row + height <= last_row: # Ctrl + F
+            # TODO: allow for traveling the remainder
+            start_row += height
+            end_row += height
+
+        elif key == 2 and start_row - height >= 0: # Ctrl + B
+            # TODO: allow for traveling the remainder
+            start_row -= height
+            end_row -= height
 
     return df_window
 
