@@ -36,10 +36,11 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
     while key not in [10, 113]: # Enter or 'q' quits (on my machine at least)
         df_window = df.iloc[start_row:end_row, start_col:end_col]
         key = curses.wrapper(get_key_and_print, df_window.to_string())
+        # Movement based on vim keys
         if key == 104 and start_col > 0: # h - vim key for left
             start_col -= 1
             end_col -= 1
-        elif key == 108 and start_col + width <= last_col: # l - vim key for right
+        elif key == 108 and start_col + width <= last_col: # l - vim key for right #TODO: rewrite condition in terms of end?
             start_col += 1
             end_col += 1
         elif key == 106 and start_row + height <= last_row: # j - vim key for down
@@ -48,12 +49,21 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
         elif key == 107 and start_row > 0: # k - vim key for up
             start_row -= 1
             end_row -= 1
-       # j is down: 106, k is up, 107, h is left, 104, l is right - 108
+        # Window resizing
+        elif key == 97 and end_col > 0: # Wind window back left - a key
+            end_col -= 1
+        elif key == 100 and end_col <= last_col: # Extend window right - d key
+            end_col += 1
+        elif key == 120 and end_row <= last_row: # Extend window down - x key
+            end_row += 1
+        elif key == 119 and end_row > 0: # Wind window back up - w key
+            end_row -= 1
+
     return df_window
 
 train = pd.read_csv('train.csv')
 
-scroller(train.tail(50)) # Start by pressing the "j" key a couple of times, then press "h"
+scroller(train.head(50)) # Start by pressing the "j" key a couple of times, then press "h"
 
 if __name__ == "__main__":
     print("Run scroller(df) in ipython")
