@@ -9,7 +9,7 @@ setup(
   author = 'Ben Ogorek',
   author_email = 'baogorek@gmail',
   url = 'https://github.com/baogorek/datascroller',
-  download_url = 'https://github.com/baogorek/datascroller/archive/v_09.tar.gz',
+  download_url = 'https://github.com/baogorek/datascroller/archive/v0.9.tar.gz',
   keywords = ['data', 'dataframe', 'viewer'],
   install_requires=[
           'curses',

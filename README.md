@@ -40,4 +40,7 @@ scroller(train)
 ```
 
 ## Installation
-TODO
+### Via pip
+```
+pip install datascroller
+```
