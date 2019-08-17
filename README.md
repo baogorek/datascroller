@@ -8,6 +8,12 @@ painstakingly tedius use of .iloc, until now...
 
 ![](resources/demo.gif)
 
+## Installation
+### via pip
+```
+pip install datascroller
+```
+
 ## Usage
 ### Keys
 The default (only at the moment) keys are set up to resemble Vim's edit mode.
@@ -27,7 +33,7 @@ The following keys are currently supported:
   - Ctrl + F: Page down
   - Ctrl + B: Page up (not working as well for some reason)
 
-### Code
+### Examples
 Using iPython is a good way to try out datascroller interactively:
 ```
 import pandas as pd
@@ -37,10 +43,4 @@ train = pd.read_csv(
     'https://raw.githubusercontent.com/datasets/house-prices-uk/master/data/data.csv')
 
 scroller(train)
-```
-
-## Installation
-### Via pip
-```
-pip install datascroller
 ```

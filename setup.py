@@ -12,8 +12,8 @@ setup(
   download_url = 'https://github.com/baogorek/datascroller/archive/v0.9.tar.gz',
   keywords = ['data', 'dataframe', 'viewer'],
   install_requires=[
-          'curses',
           'pandas',
+          'windows-curses ; platform_system=="Windows"',
       ],
   classifiers=[
     'Development Status :: 4 - Beta',
