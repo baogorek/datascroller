@@ -2,6 +2,27 @@ import os
 import curses
 import pandas as pd
 
+#--------
+# poor man's config file
+ENTER = 10
+QUIT = 99
+
+SCROLL_LEFT = 104
+SCROLL_RIGHT = 108
+SCROLL_DOWN = 106
+SCROLL_UP = 107
+
+EXPAND_ROW = 120
+RETRACT_ROW = 119
+EXPAND_COL = 100
+RETRACT_COL = 97 
+
+PAGE_DOWN = 6
+PAGE_UP = 2
+
+#--------
+
+
 def get_key_and_print(stdscr, disp_str):
     curses.curs_set(0)
     stdscr.clear()
@@ -28,38 +49,38 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
 
     key = -99
     # The scroller loop
-    while key not in [10, 113]: # Enter or 'q' quits (on my machine at least)
+    while key not in [ENTER, QUIT]: # Enter or 'q' quits (on my machine at least)
         df_window = df.iloc[start_row:end_row, start_col:end_col]
         key = curses.wrapper(get_key_and_print, df_window.to_string())
         # Movement based on vim keys
-        if key == 104 and start_col > 0: # h - vim key for left
+        if key == SCROLL_LEFT and start_col > 0: # h - vim key for left
             start_col -= 1
             end_col -= 1
-        elif key == 108 and start_col + width <= last_col: # l - vim key for right #TODO: rewrite condition in terms of end?
+        elif key == SCROLL_RIGHT and start_col + width <= last_col: # l - vim key for right #TODO: rewrite condition in terms of end?
             start_col += 1
             end_col += 1
-        elif key == 106 and start_row + height <= last_row: # j - vim key for down
+        elif key == SCROLL_DOWN and start_row + height <= last_row: # j - vim key for down
             start_row += 1
             end_row += 1
-        elif key == 107 and start_row > 0: # k - vim key for up
+        elif key == SCROLL_UP and start_row > 0: # k - vim key for up
             start_row -= 1
             end_row -= 1
         # Window resizing
-        elif key == 97 and end_col > 0: # Wind window back left - a key
+        elif key == RETRACT_COL and end_col > 0: # Wind window back left - a key
             end_col -= 1
-        elif key == 100 and end_col <= last_col: # Extend window right - d key
+        elif key == EXPAND_COL and end_col <= last_col: # Extend window right - d key
             end_col += 1
-        elif key == 120 and end_row <= last_row: # Extend window down - x key
+        elif key == EXPAND_ROW and end_row <= last_row: # Extend window down - x key
             end_row += 1
-        elif key == 119 and end_row > 0: # Wind window back up - w key
+        elif key == RETRACT_ROW and end_row > 0: # Wind window back up - w key
             end_row -= 1
         # Moving fast
-        elif key == 6 and end_row + height <= last_row: # Ctrl + F
+        elif key == PAGE_DOWN and end_row + height <= last_row: # Ctrl + F
             # TODO: allow for traveling the remainder
             start_row += height
             end_row += height
 
-        elif key == 2 and start_row - height >= 0: # Ctrl + B
+        elif key == PAGE_UP and start_row - height >= 0: # Ctrl + B
             # TODO: allow for traveling the remainder
             start_row -= height
             end_row -= height
