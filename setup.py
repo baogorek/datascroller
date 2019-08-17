@@ -3,13 +3,13 @@ from distutils.core import setup
 setup(
   name = 'datascroller',
   packages = ['datascroller'],
-  version = '0.9',
+  version = '0.9.1',
   license='MIT',
   description = 'Data scrolling in the terminal',
   author = 'Ben Ogorek',
   author_email = 'baogorek@gmail.com',
   url = 'https://github.com/baogorek/datascroller',
-  download_url = 'https://github.com/baogorek/datascroller/archive/v0.9.tar.gz',
+  download_url = 'https://github.com/baogorek/datascroller/archive/v0.9.1.tar.gz',
   keywords = ['data', 'dataframe', 'viewer'],
   install_requires=[
           'pandas',
