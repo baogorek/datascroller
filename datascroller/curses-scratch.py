@@ -1,20 +1,3 @@
-import curses
-
-def main(stdscr):
-    curses.curs_set(0)
-    while True:
-        key = stdscr.getch()
-
-        stdscr.clear()
-        if key != -1:
-            break
-    return key
-
-curses.wrapper(main)
-
-
-
-#################################
 import time
 import curses
 
@@ -64,10 +47,6 @@ def main(stdscr):
     return key
 
 curses.wrapper(main)
-
-
-
-
 
 stdscr = curses.initscr() # initialize a terminal screen and return a window object
 #

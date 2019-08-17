@@ -2,10 +2,6 @@ import os
 import curses
 import pandas as pd
 
-# Alternate names:
-# scrolldf
-# pdscroller
-
 def get_key_and_print(stdscr, disp_str):
     curses.curs_set(0)
     stdscr.clear()
@@ -19,7 +15,6 @@ def get_key_and_print(stdscr, disp_str):
 
 def scroller(df, width=5, height=8): # ignores df for now. Uses iris
     # Tunable Params
-    # ?
     # Initialization
     last_row = df.shape[0] - 1
     last_col = df.shape[1] - 1
@@ -70,11 +65,3 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
             end_row -= height
 
     return df_window
-
-train = pd.read_csv('train.csv')
-
-scroller(train.head(50)) # Start by pressing the "j" key a couple of times, then press "h"
-
-if __name__ == "__main__":
-    print("Run scroller(df) in ipython")
-    print("h and j keys to move")
