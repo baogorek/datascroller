@@ -1,24 +1,27 @@
 import os
 import curses
 import pandas as pd
+import time
+
+curses.noecho()
+curses.curs_set(0)
+curses.cbreak()
 
 def get_key_and_print(stdscr, disp_str):
-    curses.curs_set(0)
+    #curses.curs_set(0)
     stdscr.clear()
     stdscr.addstr(5, 5, disp_str)
     stdscr.refresh()
-    while True:
+    key = -1
+    while key == -1:
         key = stdscr.getch()
-        if key != -1:
-            break
     return key
 
-def scroller(df, width=5, height=8): # ignores df for now. Uses iris
+def pdscroller(df, width=5, height=8):
     # Tunable Params
     # Initialization
     last_row = df.shape[0] - 1
     last_col = df.shape[1] - 1
-    print(last_col)
 
     # Initializing the window
     start_row = 0
@@ -35,13 +38,13 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
         if key == 104 and start_col > 0: # h - vim key for left
             start_col -= 1
             end_col -= 1
-        elif key == 108 and start_col + width <= last_col: # l - vim key for right #TODO: rewrite condition in terms of end?
+        elif key == 108 and start_col + width <= last_col: # l - vim key right
             start_col += 1
             end_col += 1
-        elif key == 106 and start_row + height <= last_row: # j - vim key for down
+        elif key == 106 and start_row + height <= last_row: # j - vim key down
             start_row += 1
             end_row += 1
-        elif key == 107 and start_row > 0: # k - vim key for up
+        elif key == 107 and start_row > 0: # k - vim key up
             start_row -= 1
             end_row -= 1
         # Window resizing
@@ -64,4 +67,4 @@ def scroller(df, width=5, height=8): # ignores df for now. Uses iris
             start_row -= height
             end_row -= height
 
-    return df_window
+    #return df_window
