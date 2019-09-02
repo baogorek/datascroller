@@ -1,1 +1,1 @@
-from .scroller import pdscroller 
+from .scroller import * 
