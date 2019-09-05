@@ -10,7 +10,8 @@ setup(
   license='MIT',
   description='Data scrolling in the terminal',
   long_description=long_description,
-  long_description_content_type='text/markdown',
+  #long_description_content_type='text/markdown',
+  #TODO(baogorek) undo workaround from https://github.com/bloomberg/powerfulseal/pull/159/files
   author='Ben Ogorek',
   author_email='baogorek@gmail.com',
   url='https://github.com/baogorek/datascroller',
