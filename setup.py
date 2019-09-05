@@ -1,15 +1,20 @@
 from distutils.core import setup
 
+with open('README.md') as f:
+        long_description = f.read()
+
 setup(
-  name = 'datascroller',
-  packages = ['datascroller'],
-  version = '0.9.1',
+  name='datascroller',
+  packages=['datascroller'],
+  version='0.9.2',
   license='MIT',
-  description = 'Data scrolling in the terminal',
-  author = 'Ben Ogorek',
-  author_email = 'baogorek@gmail.com',
-  url = 'https://github.com/baogorek/datascroller',
-  download_url = 'https://github.com/baogorek/datascroller/archive/v0.9.1.tar.gz',
+  description='Data scrolling in the terminal',
+  long_description=long_description,
+  long_description_content_type='text/markdown',
+  author='Ben Ogorek',
+  author_email='baogorek@gmail.com',
+  url='https://github.com/baogorek/datascroller',
+  download_url='https://github.com/baogorek/datascroller/archive/v0.9.2.tar.gz',
   keywords = ['data', 'dataframe', 'viewer'],
   install_requires=[
           'pandas',
