@@ -13,7 +13,7 @@ painstakingly tedius use of .iloc, until now...
 pip install datascroller
 
 ## Usage
-Import the `scroll` function with
+Import the scroll function with
 from datascroller import scroll
 and call scroll with a Pandas DataFrame as an argument. Press 'q' to quit
 viewing.
@@ -39,13 +39,10 @@ The following keys are currently supported:
 
 ### Examples
 Using iPython is a good way to try out datascroller interactively:
-```
 import pandas as pd
 from datascroller import scroll
-
 train = pd.read_csv(
     'https://raw.githubusercontent.com/datasets/house-prices-uk/master/data/data.csv')
-
 scroll(train)
 """
 
