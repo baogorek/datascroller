@@ -1,3 +1,4 @@
+import sys
 import os
 import curses
 import pandas as pd
@@ -41,6 +42,8 @@ def key_press_and_print_df(stdscr, df):
     last_col = df.shape[1] - 1
 
     # Initializing the window
+    pad_x = 5
+    pad_y = 5
     start_row = 0
     end_row = min(5, last_row,  max_yx[0] - 1) # TODO (ben): make configurable
     start_col = 0
@@ -93,13 +96,21 @@ def key_press_and_print_df(stdscr, df):
             height = end_row - start_row
             start_row += height
             end_row += height 
-
         elif key == PAGE_UP and end_row - (end_row - start_row) >= 0:
             height = end_row - start_row
             start_row -= height 
             end_row -= height 
         # After all the if & elif statements, reprint and display
         disp_str = df.iloc[start_row:end_row, start_col:end_col].to_string()
+
+        # TODO(baogore): Violating DRY principle - encapsulate
+        row_chars = len(disp_str.split('\n')[0])
+        while row_chars > max_yx[1] - 1:
+            end_col -= 1
+            df_window = df.iloc[start_row:end_row, start_col:end_col]
+            disp_str = df_window.to_string()
+            row_chars = len(disp_str.split('\n')[0])
+
         stdscr.clear()
         stdscr.addstr(0, 0, disp_str)
         stdscr.addstr(0, 0, 'R' + str(start_row))
@@ -112,15 +123,12 @@ def scroll(scrollable):
     else:
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
+def scroll_csv(csv_path):
+    pandas_df = pd.read_csv(csv_path)
+    scroll(pandas_df)
 
 def main():
-    # This is how you run scroller2
-    #load_ext autoreload
-    #autoreload 2
-    #import pandas as pd
-    #from datascroller import scroll
-    train = pd.read_csv('resources/train.csv')
-    scroll(train)
+    scroll_csv(sys.argv[1])
 
 if __name__ == '__main__':
     main()
