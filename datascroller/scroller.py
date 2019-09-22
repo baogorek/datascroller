@@ -95,9 +95,9 @@ class ViewingArea:
         self.pad_char_x = pad_x
 
         self.leftmost_char = pad_x
-        self.rightmost_char = self.total_chars_x - pad_x
+        self.rightmost_char = self.total_chars_x - pad_x - 1
         self.topmost_char = pad_y
-        self.bottommost_char = self.total_chars_y - pad_y
+        self.bottommost_char = self.total_chars_y - pad_y - 1
 
     def _create_list_of_rowstrings(self):
         """prints a representation of the viewing area to aid understanding"""
@@ -114,17 +114,52 @@ class ViewingArea:
 
     def print_representation(self):
         rowlist = self._create_list_of_rowstrings()
-        for j in range(self.total_chars_y):
-            print(rowlist[j], end='')
-            sys.stdout.flush()
+        for j in range(self.total_chars_y - 1):
+            print(rowlist[j])
+        print(rowlist[self.total_chars_y - 1], end='')
+        sys.stdout.flush()
         time.sleep(3)
 
     def _display_string_rep_using_curses(self, screen):
         curses.curs_set(0)
         rowlist = self._create_list_of_rowstrings()
+        screen.clear()
+        screen.refresh()
+        # Clearly need to go short one character in the x-direction
+        #screen.addstr(10, 5, str(screen.getmaxyx()))
+        #screen.addstr(22, 98, 'i')
+
         for j in range(self.total_chars_y):
-            screen.addstr(0, j, rowlist[j])
+            try:
+                screen.addstr(j, 0, rowlist[j])
+            except curses.error:
+                # Last x-char: still prints character even with error
+                pass
+        screen.refresh()
+        time.sleep(1)
+        curses.curs_set(1)
+
+        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_YELLOW) # id 1
+        screen.attron(curses.color_pair(1))
+
+        screen.addstr(self.topmost_char, self.leftmost_char, 'A')
+        screen.refresh()
+        time.sleep(1)
+
+        screen.addstr(self.topmost_char, self.rightmost_char, 'B')
+        screen.refresh()
+        time.sleep(1)
+
+        screen.addstr(self.bottommost_char, self.leftmost_char, 'C')
+        screen.refresh()
+        time.sleep(1)
+
+        screen.addstr(self.bottommost_char, self.rightmost_char, 'D')
+        screen.refresh()
         time.sleep(3)
+ 
+        screen.attroff(curses.color_pair(1))
+        curses.endwin() # NOTE: Still not sure about the persistance of screen
 
     def show_curses_representation(self):
         curses.wrapper(self._display_string_rep_using_curses)
