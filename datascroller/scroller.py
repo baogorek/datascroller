@@ -23,44 +23,121 @@ PAGE_DOWN = 6
 PAGE_UP = 2
 #------------------------------------------------------------------------------
 
+class DFWindow:
+    """The data frame window"""
+    def __init__(self, pandas_df, viewing_area):
+        self.full_df = pandas_df
+        self.viewing_area = viewing_area
 
-def get_key_and_print(stdscr, disp_str):
-    curses.curs_set(0)
-    stdscr.clear()
-    stdscr.addstr(5, 5, disp_str)
-    stdscr.refresh()
-    key = -1
-    while key == -1:
-        key = stdscr.getch()
-    return key
+        self.left = viewing_area.pad_x 
+        self.right = self.full_df.shape[1]
+        self.top = viewing_area.pad_y 
+        self.bottom = self.full_df.shape[0]
+        self.data = self.full_df
+
+    def build_position_list(self):
+        """list of character positions for each variable (x dimension)"""
+        positions = []
+        for j in range(self.full_df.shape[1]):
+           row_str = self.full_df.iloc[1, 0:j].to_string().split('\n')[1]
+           positions.append(len(row_str))
+
+    def update(self):
+        self.data = self.full_df[self.top:self.bottom, self.left:self.right]
+
+    def get_horizontal_strlen(self):
+        return len(self.print().split('\n')[0])
+    
+    def get_vertical_strlen(self):
+        return self.bottom - self.top
+    
+    def old_code_probably_delete(self):
+        # Turn dataframe window into pritable string
+        df_window = df.iloc[start_row:end_row, start_col:end_col]
+        disp_str = df_window.to_string()
+        row_chars = len(disp_str.split('\n')[0])
+        while row_chars > max_yx[1] - 1:
+            end_col -= 1
+            df_window = df.iloc[start_row:end_row, start_col:end_col]
+            disp_str = df_window.to_string()
+            row_chars = len(disp_str.split('\n')[0])
+
+
+    def print(self):
+        return self.data.to_string()
+
+    def move_right(self):
+        pass
+
+    def move_left(self):
+        pass
+
+    def move_down(self):
+        pass
+
+    def move_up(self):
+        pass
+    
+    def fit_within_char_dimensions(self, str_y, str_x):
+        pass
+
+
+class ViewingArea:
+    def __init__(self, total_chars_y, total_chars_x, pad_y, pad_x):
+        """Initialize the real estate of the padded viewing area"""
+        self.max_char_y_coord = total_chars_y - 1
+        self.max_char_x_coord = total_chars_x - 1
+
+        self.total_chars_y = total_chars_y
+        self.total_chars_x = total_chars_x
+
+        self.pad_char_y = pad_y
+        self.pad_char_x = pad_x
+
+        self.leftmost_char = pad_x
+        self.rightmost_char = self.total_chars_x - pad_x
+        self.topmost_char = pad_y
+        self.bottommost_char = self.total_chars_y - pad_y
+
+    def _create_list_of_rowstrings(self):
+        """prints a representation of the viewing area to aid understanding"""
+        row_list = []
+        for k in range(self.pad_char_y):
+            row_list.append('P' * self.total_chars_x)
+        for i in range(self.total_chars_y - 2 * self.pad_char_y):
+            row_list.append('P' * self.pad_char_x
+                           + 'X' * (self.total_chars_x - 2 * self.pad_char_x)
+                           + 'P' * self.pad_char_x)
+        for k in range(self.pad_char_y):
+            row_list.append('P' * self.total_chars_x)
+        return row_list
+
+    def print_representation(self):
+        rowlist = self._create_list_of_rowstrings()
+        for j in range(self.total_chars_y):
+            print(rowlist[j], end='')
+            sys.stdout.flush()
+        time.sleep(3)
+
+    def _display_string_rep_using_curses(self, screen):
+        curses.curs_set(0)
+        rowlist = self._create_list_of_rowstrings()
+        for j in range(self.total_chars_y):
+            screen.addstr(0, j, rowlist[j])
+        time.sleep(3)
+
+    def show_curses_representation(self):
+        curses.wrapper(self._display_string_rep_using_curses)
 
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
-    max_yx = stdscr.getmaxyx() # NOTE: This does not change in real time
-    last_row = df.shape[0] - 1
-    last_col = df.shape[1] - 1
 
-    # Initializing the window
-    pad_x = 5
-    pad_y = 5
-    start_row = 0
-    end_row = min(5, last_row,  max_yx[0] - 1) # TODO (ben): make configurable
-    start_col = 0
-    end_col = min(10, last_col)
-
-    # Turn dataframe window into pritable string
-    df_window = df.iloc[start_row:end_row, start_col:end_col]
-    disp_str = df_window.to_string()
-    row_chars = len(disp_str.split('\n')[0])
-    while row_chars > max_yx[1] - 1:
-        end_col -= 1
-        df_window = df.iloc[start_row:end_row, start_col:end_col]
-        disp_str = df_window.to_string()
-        row_chars = len(disp_str.split('\n')[0])
+    viewing_area = ViewingArea(stdscr, 2, 4) 
+    df_window = DFWindow(df)
 
     stdscr.clear()
-    stdscr.addstr(0, 0, disp_str)
+    stdscr.addstr(pad_y, pad_x, disp_str)
     stdscr.refresh()
 
     key = -1
@@ -100,6 +177,9 @@ def key_press_and_print_df(stdscr, df):
             height = end_row - start_row
             start_row -= height 
             end_row -= height 
+        elif key == curses.KEY_RESIZE:
+            print("Terminal resized. Please restart scroller")
+            break
         # After all the if & elif statements, reprint and display
         disp_str = df.iloc[start_row:end_row, start_col:end_col].to_string()
 
@@ -119,7 +199,7 @@ def key_press_and_print_df(stdscr, df):
 
 def scroll(scrollable):
     if isinstance(scrollable, pd.core.frame.DataFrame):
-        curses.wrapper( key_press_and_print_df, scrollable)
+        curses.wrapper(key_press_and_print_df, scrollable)
     else:
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
