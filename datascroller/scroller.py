@@ -23,17 +23,25 @@ PAGE_DOWN = 6
 PAGE_UP = 2
 #------------------------------------------------------------------------------
 
+
 class DFWindow:
     """The data frame window"""
     def __init__(self, pandas_df, viewing_area):
         self.full_df = pandas_df
         self.viewing_area = viewing_area
+        
+        # df[left:right, top:bottom]
 
-        self.left = viewing_area.pad_x 
-        self.right = self.full_df.shape[1]
-        self.top = viewing_area.pad_y 
-        self.bottom = self.full_df.shape[0]
-        self.data = self.full_df
+        self.left = 2 # TODO
+        self.right = 7 # TODO
+        self.top = self.viewing_area.topmost_char
+        self.bottom = self.viewing_area.bottommost_char + 1
+        self.df_window = self.full_df.iloc[self.top:self.bottom,
+                                           self.left:self.right,]
+
+    def show_data_window_in_viewing_area(self):
+        self.viewing_area.show_curses_representation(
+                self.df_window.to_string())
 
     def build_position_list(self):
         """list of character positions for each variable (x dimension)"""
@@ -83,8 +91,58 @@ class DFWindow:
 
 
 class ViewingArea:
+    """ Class representing the viewing area where dataframes are printed
+
+        This class is specifically designed to minimize confusion. It takes 
+        as input pane dimensions but calculates seemingly trivial quantities
+        like the maximum coordinates (1 less). The show and print methods
+        provide a sanity check to the developer in later stages.
+
+        Attributes
+        ----------
+        max_char_y_coord : int
+            The maximum curses screen coordinate for the row dimension
+        max_char_x_coord : int
+            The maximum curses screen coordinate for the col dimension
+        total_chars_y: int
+            The horizonal pane dimension
+        total_chars_x: int
+            The vertical pane dimension
+        pad_char_y: int
+            The amount of blank spaces to the left and right
+        pad_char_x: int
+            The amount of black spaces at the top and bottom
+        leftmost_char: int
+            The leftmost x coordinate value where there can be output
+        rightmost_char: int
+            The rightmost x coordinate value where there can be output
+        topmost_char: int
+            The topmost y coordinate value where there can be output
+        bottommost_char: int
+            The bottommost y coordinate value where there can be output
+
+        Methods
+        -------
+        print_representation()
+            prints a representation of the viewing area without curses
+        show_curses_representation()
+            displays a representation of the viewing area using curses,
+            and also displays the corners of the content bounding box.
+        """
     def __init__(self, total_chars_y, total_chars_x, pad_y, pad_x):
-        """Initialize the real estate of the padded viewing area"""
+        """Initialize the real estate of the padded viewing area
+    
+        Parameters
+        ----------
+        total_chars_y: int
+            The horizonal pane dimension
+        total_chars_x: int
+            The vertical pane dimension
+        pad_char_y: int
+            The amount of blank spaces to the left and right
+        pad_char_x: int
+            The amount of black spaces at the top and bottom
+        """
         self.max_char_y_coord = total_chars_y - 1
         self.max_char_x_coord = total_chars_x - 1
 
@@ -120,15 +178,11 @@ class ViewingArea:
         sys.stdout.flush()
         time.sleep(3)
 
-    def _display_string_rep_using_curses(self, screen):
+    def _display_string_rep_using_curses(self, screen, otherstring=None):
         curses.curs_set(0)
         rowlist = self._create_list_of_rowstrings()
         screen.clear()
         screen.refresh()
-        # Clearly need to go short one character in the x-direction
-        #screen.addstr(10, 5, str(screen.getmaxyx()))
-        #screen.addstr(22, 98, 'i')
-
         for j in range(self.total_chars_y):
             try:
                 screen.addstr(j, 0, rowlist[j])
@@ -157,12 +211,18 @@ class ViewingArea:
         screen.addstr(self.bottommost_char, self.rightmost_char, 'D')
         screen.refresh()
         time.sleep(3)
- 
+
+        if otherstring:
+            screen.addstr(self.topmost_char, self.leftmost_char,
+                          otherstring)
+            screen.refresh()
+            time.sleep(3)
+
         screen.attroff(curses.color_pair(1))
         curses.endwin() # NOTE: Still not sure about the persistance of screen
 
-    def show_curses_representation(self):
-        curses.wrapper(self._display_string_rep_using_curses)
+    def show_curses_representation(self, otherstring=None):
+        curses.wrapper(self._display_string_rep_using_curses, otherstring)
 
 
 def key_press_and_print_df(stdscr, df):
