@@ -28,6 +28,7 @@ setup(
           'pandas',
           'windows-curses ; platform_system=="Windows"',
       ],
+  scripts=['bin/scroll'],
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
