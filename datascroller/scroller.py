@@ -1,8 +1,16 @@
 import sys
 import os
+import shutil
 import curses
 import pandas as pd
 import time
+
+# dev script
+#import pandas as pd
+#train_df = pd.read_csv('resources/train.csv')
+#load_ext autoreload
+#autoreload 2
+#from datascroller.scroller import *
 
 
 # poor man's config file ------------------------------------------------------
@@ -29,26 +37,40 @@ class DFWindow:
     def __init__(self, pandas_df, viewing_area):
         self.full_df = pandas_df
         self.viewing_area = viewing_area
-        
-        # df[left:right, top:bottom]
+        self.positions = self.build_position_list()
 
-        self.left = 2 # TODO
-        self.right = 7 # TODO
-        self.top = self.viewing_area.topmost_char
-        self.bottom = self.viewing_area.bottommost_char + 1
-        self.df_window = self.full_df.iloc[self.top:self.bottom,
-                                           self.left:self.right,]
+        # df[r_1:r_2, c_1:c_2]
+        self.r_1 = 0
+        self.r_2 = viewing_area.max_char_y_coord
+        self.c_1 = 0
+        self.c_2 = 3 #TODO
+
+        self.df_window = self.full_df.iloc[self.r_1:self.r_2,
+                                           self.c_1:self.c_2]
+
+    def get_window_string(self):
+        """get a string representation of the window that respects padding
+
+        Another way to handle this would be to print line by line with curses.
+        That might be slower. The downside of this approach is that spaces
+        will erase any text to the left of the printed window.
+        """
+        window_string = self.df_window.to_string()
+        row_padding = '\n' + ' ' * self.viewing_area.pad_chars_x
+        padded_string = window_string.replace('\n', row_padding)
+        return padded_string
 
     def show_data_window_in_viewing_area(self):
         self.viewing_area.show_curses_representation(
-                self.df_window.to_string())
+                self.get_window_string())
 
     def build_position_list(self):
         """list of character positions for each variable (x dimension)"""
         positions = []
-        for j in range(self.full_df.shape[1]):
-           row_str = self.full_df.iloc[1, 0:j].to_string().split('\n')[1]
+        for j in range(1, self.full_df.shape[1] + 1):
+           row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
            positions.append(len(row_str))
+        return positions
 
     def update(self):
         self.data = self.full_df[self.top:self.bottom, self.left:self.right]
@@ -100,18 +122,18 @@ class ViewingArea:
 
         Attributes
         ----------
-        max_char_y_coord : int
-            The maximum curses screen coordinate for the row dimension
         max_char_x_coord : int
-            The maximum curses screen coordinate for the col dimension
-        total_chars_y: int
-            The horizonal pane dimension
+            The maximum curses coordinate for the col dimension, padded area
+        max_char_y_coord : int
+            The maximum curses coordinate for the row dimension, padded area
         total_chars_x: int
             The vertical pane dimension
-        pad_char_y: int
-            The amount of blank spaces to the left and right
-        pad_char_x: int
+        total_chars_y: int
+            The horizonal pane dimension
+        pad_chars_x: int
             The amount of black spaces at the top and bottom
+        pad_chars_y: int
+            The amount of blank spaces to the left and right
         leftmost_char: int
             The leftmost x coordinate value where there can be output
         rightmost_char: int
@@ -129,28 +151,25 @@ class ViewingArea:
             displays a representation of the viewing area using curses,
             and also displays the corners of the content bounding box.
         """
-    def __init__(self, total_chars_y, total_chars_x, pad_y, pad_x):
+    def __init__(self, pad_x, pad_y):
         """Initialize the real estate of the padded viewing area
     
         Parameters
         ----------
-        total_chars_y: int
-            The horizonal pane dimension
-        total_chars_x: int
-            The vertical pane dimension
-        pad_char_y: int
-            The amount of blank spaces to the left and right
-        pad_char_x: int
+        pad_chars_x: int
             The amount of black spaces at the top and bottom
+        pad_chars_y: int
+            The amount of blank spaces to the left and right
         """
-        self.max_char_y_coord = total_chars_y - 1
-        self.max_char_x_coord = total_chars_x - 1
+        self.pad_chars_x = pad_x
+        self.pad_chars_y = pad_y
 
-        self.total_chars_y = total_chars_y
-        self.total_chars_x = total_chars_x
+        term_size = shutil.get_terminal_size()
+        self.total_chars_x = term_size.columns
+        self.total_chars_y = term_size.lines
 
-        self.pad_char_y = pad_y
-        self.pad_char_x = pad_x
+        self.max_char_x_coord = self.total_chars_x - 2 * self.pad_chars_x - 1
+        self.max_char_y_coord = self.total_chars_y - 2 * self.pad_chars_y - 1
 
         self.leftmost_char = pad_x
         self.rightmost_char = self.total_chars_x - pad_x - 1
@@ -160,13 +179,13 @@ class ViewingArea:
     def _create_list_of_rowstrings(self):
         """prints a representation of the viewing area to aid understanding"""
         row_list = []
-        for k in range(self.pad_char_y):
+        for k in range(self.pad_chars_y):
             row_list.append('P' * self.total_chars_x)
-        for i in range(self.total_chars_y - 2 * self.pad_char_y):
-            row_list.append('P' * self.pad_char_x
-                           + 'X' * (self.total_chars_x - 2 * self.pad_char_x)
-                           + 'P' * self.pad_char_x)
-        for k in range(self.pad_char_y):
+        for i in range(self.total_chars_y - 2 * self.pad_chars_y):
+            row_list.append('P' * self.pad_chars_x
+                           + 'X' * (self.total_chars_x - 2 * self.pad_chars_x)
+                           + 'P' * self.pad_chars_x)
+        for k in range(self.pad_chars_y):
             row_list.append('P' * self.total_chars_x)
         return row_list
 
