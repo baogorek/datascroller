@@ -3,6 +3,7 @@ import os
 import shutil
 import curses
 import pandas as pd
+import numpy as np
 import time
 
 # dev script
@@ -40,13 +41,12 @@ class DFWindow:
         self.positions = self.build_position_list()
 
         # df[r_1:r_2, c_1:c_2]
-        self.r_1 = 0
-        self.r_2 = viewing_area.max_char_y_coord
-        self.c_1 = 0
-        self.c_2 = 3 #TODO
+        self.update_dataframe_coords()
+        #self.r_1 = 0
+        #self.c_1 = 0
 
-        self.df_window = self.full_df.iloc[self.r_1:self.r_2,
-                                           self.c_1:self.c_2]
+        #self.r_2 = self.viewing_area.max_char_y_coord
+        #self.c_2 = self.find_last_fitting_column()
 
     def get_window_string(self):
         """get a string representation of the window that respects padding
@@ -55,18 +55,36 @@ class DFWindow:
         That might be slower. The downside of this approach is that spaces
         will erase any text to the left of the printed window.
         """
+        self.df_window = self.full_df.iloc[self.r_1:self.r_2,
+                                           self.c_1:self.c_2]
+
         window_string = self.df_window.to_string()
         row_padding = '\n' + ' ' * self.viewing_area.pad_chars_x
         padded_string = window_string.replace('\n', row_padding)
         return padded_string
 
-    def show_data_window_in_viewing_area(self):
+    def update_dataframe_coords(self, start_row=0, start_col=0):
+        self.r_1 = start_row
+        self.c_1 = start_col
+
+        self.r_2 = self.viewing_area.max_char_y_coord + self.r_1
+        self.c_2 = self.find_last_fitting_column()
+
+    def show_data_window_in_viewing_area(self, start_row=0, start_col=0):
+        self.update_dataframe_coords(start_row, start_col)
         self.viewing_area.show_curses_representation(
                 self.get_window_string())
 
+    def find_last_fitting_column(self):
+
+        rel_positions = [p - self.positions[self.c_1] for p in self.positions]
+        max_j = np.argmax([p for p in rel_positions
+                           if p <= self.viewing_area.max_char_x_coord])
+        return max_j
+
     def build_position_list(self):
         """list of character positions for each variable (x dimension)"""
-        positions = []
+        positions = [0]
         for j in range(1, self.full_df.shape[1] + 1):
            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
            positions.append(len(row_str))
