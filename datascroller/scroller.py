@@ -70,13 +70,15 @@ class DFWindow:
         self.r_2 = self.viewing_area.max_char_y_coord + self.r_1
         self.c_2 = self.find_last_fitting_column()
 
-    def show_data_window_in_viewing_area(self, start_row=0, start_col=0):
-        self.update_dataframe_coords(start_row, start_col)
+    def show_data_window_in_viewing_area(self):#, start_row=0, start_col=0):
+        #self.update_dataframe_coords(start_row, start_col)
         self.viewing_area.show_curses_representation(
                 self.get_window_string())
 
-    def find_last_fitting_column(self):
+    def show_data_on_screen(self, screen):
+        self.viewing_area.show_on_screen(screen, self.get_window_string())
 
+    def find_last_fitting_column(self):
         rel_positions = [p - self.positions[self.c_1] for p in self.positions]
         max_j = np.argmax([p for p in rel_positions
                            if p <= self.viewing_area.max_char_x_coord])
@@ -90,45 +92,31 @@ class DFWindow:
            positions.append(len(row_str))
         return positions
 
-    def update(self):
-        self.data = self.full_df[self.top:self.bottom, self.left:self.right]
-
     def get_horizontal_strlen(self):
         return len(self.print().split('\n')[0])
     
     def get_vertical_strlen(self):
         return self.bottom - self.top
     
-    def old_code_probably_delete(self):
-        # Turn dataframe window into pritable string
-        df_window = df.iloc[start_row:end_row, start_col:end_col]
-        disp_str = df_window.to_string()
-        row_chars = len(disp_str.split('\n')[0])
-        while row_chars > max_yx[1] - 1:
-            end_col -= 1
-            df_window = df.iloc[start_row:end_row, start_col:end_col]
-            disp_str = df_window.to_string()
-            row_chars = len(disp_str.split('\n')[0])
-
-
     def print(self):
         return self.data.to_string()
 
     def move_right(self):
-        pass
+        self.c_1 += 0
+        self.c_2 += 1 
 
     def move_left(self):
-        pass
+        self.c_1 -= 1
+        self.c_2 -= 1 
 
     def move_down(self):
-        pass
+        self.r_1 += 1
+        self.r_2 += 1 
 
     def move_up(self):
-        pass
+        self.r_1 -= 1
+        self.r_2 -= 1
     
-    def fit_within_char_dimensions(self, str_y, str_x):
-        pass
-
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -215,6 +203,12 @@ class ViewingArea:
         sys.stdout.flush()
         time.sleep(3)
 
+    def _display_string_using_curses(self, screen, otherstring):
+        """Prints strings for use with the scroller"""
+        screen.addstr(self.topmost_char, self.leftmost_char,
+                      otherstring)
+        screen.refresh()
+
     def _display_string_rep_using_curses(self, screen, otherstring=None):
         curses.curs_set(0)
         rowlist = self._create_list_of_rowstrings()
@@ -261,16 +255,23 @@ class ViewingArea:
     def show_curses_representation(self, otherstring=None):
         curses.wrapper(self._display_string_rep_using_curses, otherstring)
 
+    def show_on_screen(self, screen, string):
+        self._display_string_using_curses(screen, string)
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
-
-    viewing_area = ViewingArea(stdscr, 2, 4) 
-    df_window = DFWindow(df)
+    #stdscr = curses.initscr()
+    viewing_area = ViewingArea(4, 2) 
+    df_window = DFWindow(df, viewing_area)
 
     stdscr.clear()
-    stdscr.addstr(pad_y, pad_x, disp_str)
-    stdscr.refresh()
+    df_window.show_data_on_screen(stdscr)
+
+    # TODO(baogorek): remove and bring up to date
+    start_col=0
+    end_col=0
+    start_row=0
+    end_row=0
 
     key = -1
     # The scroller loop
