@@ -23,11 +23,6 @@ SCROLL_RIGHT = 108
 SCROLL_DOWN = 106
 SCROLL_UP = 107
 
-EXPAND_ROW = 120
-RETRACT_ROW = 119
-EXPAND_COL = 100
-RETRACT_COL = 97 
-
 PAGE_DOWN = 6
 PAGE_UP = 2
 #------------------------------------------------------------------------------
@@ -42,12 +37,6 @@ class DFWindow:
 
         # df[r_1:r_2, c_1:c_2]
         self.update_dataframe_coords()
-        #self.r_1 = 0
-        #self.c_1 = 0
-
-        #self.r_2 = self.viewing_area.max_char_y_coord
-        #self.c_2 = self.find_last_fitting_column()
-
     def get_window_string(self):
         """get a string representation of the window that respects padding
 
@@ -61,7 +50,15 @@ class DFWindow:
         window_string = self.df_window.to_string()
         row_padding = '\n' + ' ' * self.viewing_area.pad_chars_x
         padded_string = window_string.replace('\n', row_padding)
+
+       
         return padded_string
+
+    def get_position_string(self):
+        """Creates a header showing where the top left df corner is"""
+        # TODO (baogorek): Handle thousands and millions
+        position_string = 'R' + str(self.r_1) + 'C' + str(self.c_1)
+        return position_string
 
     def update_dataframe_coords(self, start_row=0, start_col=0):
         self.r_1 = start_row
@@ -71,12 +68,14 @@ class DFWindow:
         self.c_2 = self.find_last_fitting_column()
 
     def show_data_window_in_viewing_area(self):#, start_row=0, start_col=0):
-        #self.update_dataframe_coords(start_row, start_col)
         self.viewing_area.show_curses_representation(
                 self.get_window_string())
 
     def show_data_on_screen(self, screen):
         self.viewing_area.show_on_screen(screen, self.get_window_string())
+
+    def add_data_to_screen(self, screen):
+        self.viewing_area.add_to_screen(screen, self.get_window_string())
 
     def find_last_fitting_column(self):
         rel_positions = [p - self.positions[self.c_1] for p in self.positions]
@@ -102,21 +101,39 @@ class DFWindow:
         return self.data.to_string()
 
     def move_right(self):
-        self.c_1 += 0
-        self.c_2 += 1 
+        if self.c_2 < self.full_df.shape[1]:
+            self.update_dataframe_coords(start_row=self.r_1,
+                                         start_col=self.c_1 + 1)
 
     def move_left(self):
-        self.c_1 -= 1
-        self.c_2 -= 1 
+        if self.c_1 > 0:
+            self.update_dataframe_coords(start_row=self.r_1,
+                                         start_col=self.c_1 - 1)
 
     def move_down(self):
-        self.r_1 += 1
-        self.r_2 += 1 
+        if self.r_1 < self.full_df.shape[0]:
+            self.update_dataframe_coords(start_row=self.r_1 + 1,
+                                         start_col=self.c_1)
 
     def move_up(self):
-        self.r_1 -= 1
-        self.r_2 -= 1
-    
+        if self.r_1 > 0:
+            self.update_dataframe_coords(start_row=self.r_1 - 1,
+                                         start_col=self.c_1)
+
+    def page_down(self):
+        page_size = self.r_2 - self.r_1
+        if self.r_1 + page_size > self.full_df.shape[0] - 1:
+            page_size = self.full_df.shape[0] - self.r_1 + 1
+        self.update_dataframe_coords(start_row=self.r_1 + page_size,
+                                     start_col=self.c_1)
+
+    def page_up(self):
+        page_size = self.r_2 - self.r_1
+        if self.r_1 - page_size < 0:
+            page_size = self.r_1 
+        self.update_dataframe_coords(start_row=self.r_1 - page_size,
+                                     start_col=self.c_1)
+
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -205,9 +222,21 @@ class ViewingArea:
 
     def _display_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
-        screen.addstr(self.topmost_char, self.leftmost_char,
-                      otherstring)
-        screen.refresh()
+        try:
+            screen.addstr(self.topmost_char, self.leftmost_char,
+                          otherstring)
+            screen.refresh()
+        except curses.error:
+            pass
+
+    # TODO(baogorek): figure out what to do with function above
+    def _add_string_using_curses(self, screen, otherstring):
+        """Prints strings for use with the scroller"""
+        try:
+            screen.addstr(self.topmost_char, self.leftmost_char,
+                          otherstring)
+        except curses.error:
+            pass
 
     def _display_string_rep_using_curses(self, screen, otherstring=None):
         curses.curs_set(0)
@@ -258,76 +287,55 @@ class ViewingArea:
     def show_on_screen(self, screen, string):
         self._display_string_using_curses(screen, string)
 
+    def add_to_screen(self, screen, string):
+        """Same as above but does not refresh"""
+        self._add_string_using_curses(screen, string)
+
+
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
     #stdscr = curses.initscr()
-    viewing_area = ViewingArea(4, 2) 
+    stdscr.clear() # 
+    viewing_area = ViewingArea(8, 2) 
     df_window = DFWindow(df, viewing_area)
 
-    stdscr.clear()
-    df_window.show_data_on_screen(stdscr)
-
-    # TODO(baogorek): remove and bring up to date
-    start_col=0
-    end_col=0
-    start_row=0
-    end_row=0
+    df_window.add_data_to_screen(stdscr)
+    stdscr.addstr(0, 0, df_window.get_position_string())
+    stdscr.refresh()
 
     key = -1
     # The scroller loop
     while key not in [ENTER, QUIT]:
 
+
         key = stdscr.getch()
 
         # Movement based on vim keys
-        if key in [SCROLL_LEFT, curses.KEY_LEFT] and start_col > 0:
-            start_col -= 1
-            end_col -= 1
-        elif key in [SCROLL_RIGHT, curses.KEY_RIGHT] and start_col < last_col:
-            start_col += 1
-            end_col += 1
-        elif key in [SCROLL_DOWN, curses.KEY_DOWN] and start_row < last_row:
-            start_row += 1
-            end_row += 1
-        elif key in [SCROLL_UP, curses.KEY_UP] and start_row > 0:
-            start_row -= 1
-            end_row -= 1
-        # Window resizing
-        elif key == RETRACT_COL and end_col > 0:
-            end_col -= 1
-        elif key == EXPAND_COL and end_col < last_col:
-            end_col += 1
-        elif key == EXPAND_ROW and end_row < last_row:
-            end_row += 1
-        elif key == RETRACT_ROW and end_row > 0:
-            end_row -= 1
+        if key in [SCROLL_LEFT, curses.KEY_LEFT]:
+            df_window.move_left()
+        elif key in [SCROLL_RIGHT, curses.KEY_RIGHT]:
+            df_window.move_right()
+        elif key in [SCROLL_DOWN, curses.KEY_DOWN]:
+            df_window.move_down()
+        elif key in [SCROLL_UP, curses.KEY_UP]:
+            df_window.move_up()
         # Moving fast
-        elif key == PAGE_DOWN and end_row < last_row:
-            height = end_row - start_row
-            start_row += height
-            end_row += height 
-        elif key == PAGE_UP and end_row - (end_row - start_row) >= 0:
-            height = end_row - start_row
-            start_row -= height 
-            end_row -= height 
+        elif key == PAGE_DOWN:
+            df_window.page_down()
+        elif key == PAGE_UP:
+            df_window.page_up()
         elif key == curses.KEY_RESIZE:
-            print("Terminal resized. Please restart scroller")
+            print("Terminal resized. Please restart the scroller")
             break
-        # After all the if & elif statements, reprint and display
-        disp_str = df.iloc[start_row:end_row, start_col:end_col].to_string()
-
-        # TODO(baogore): Violating DRY principle - encapsulate
-        row_chars = len(disp_str.split('\n')[0])
-        while row_chars > max_yx[1] - 1:
-            end_col -= 1
-            df_window = df.iloc[start_row:end_row, start_col:end_col]
-            disp_str = df_window.to_string()
-            row_chars = len(disp_str.split('\n')[0])
 
         stdscr.clear()
-        stdscr.addstr(0, 0, disp_str)
-        stdscr.addstr(0, 0, 'R' + str(start_row))
+        df_window.add_data_to_screen(stdscr)
+        stdscr.addstr(0, 0, df_window.get_position_string())
         stdscr.refresh()
+
+    stdscr.clear()
+    stdscr.refresh()
+    curses.endwin()
 
 
 def scroll(scrollable):
