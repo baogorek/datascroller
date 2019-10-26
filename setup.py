@@ -12,17 +12,15 @@ painstakingly tedius use of .iloc, until now...
 setup(
   name='datascroller',
   packages=['datascroller'],
-  version='1.0.0',
+  version='1.1.0',
   license='MIT',
   description='Data scrolling in the terminal',
   long_description=LONG_DESCRIPTION,
-  long_description_content_type='text/plain',
-  #TODO(baogorek): update when Markdown issue is resolved
-  #  https://github.com/bloomberg/powerfulseal/pull/159/files
+  long_description_content_type='text/markdown',
   author='Ben Ogorek',
   author_email='baogorek@gmail.com',
   url='https://github.com/baogorek/datascroller',
-  download_url='https://github.com/baogorek/datascroller/archive/v1.0.0.tar.gz',
+  download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
   keywords = ['data', 'dataframe', 'viewer'],
   install_requires=[
           'pandas',
@@ -32,12 +30,13 @@ setup(
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
-    'Topic :: Software Development :: Build Tools',
+    'Topic :: Software Development :: User Interfaces',
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
   ],
 )

@@ -8,7 +8,7 @@ import time
 
 # dev script
 #import pandas as pd
-#train_df = pd.read_csv('resources/train.csv')
+#train_df = pd.read_csv('/mnt/c/devl/data/Car.csv')
 #load_ext autoreload
 #autoreload 2
 #from datascroller.scroller import *
@@ -35,8 +35,13 @@ class DFWindow:
         self.viewing_area = viewing_area
         self.positions = self.build_position_list()
 
-        # df[r_1:r_2, c_1:c_2]
         self.update_dataframe_coords()
+        print("I've been updated 1")
+
+    def get_dataframe_window(self):
+        """DataFrame window of form self.df[r_1:r_2, c_1:c_2]"""
+        return self.full_df.iloc[self.r_1:self.r_2, self.c_1:self.c_2]
+
     def get_window_string(self):
         """get a string representation of the window that respects padding
 
@@ -44,14 +49,10 @@ class DFWindow:
         That might be slower. The downside of this approach is that spaces
         will erase any text to the left of the printed window.
         """
-        self.df_window = self.full_df.iloc[self.r_1:self.r_2,
-                                           self.c_1:self.c_2]
-
+        self.df_window = self.get_dataframe_window()
         window_string = self.df_window.to_string()
         row_padding = '\n' + ' ' * self.viewing_area.pad_chars_x
         padded_string = window_string.replace('\n', row_padding)
-
-       
         return padded_string
 
     def get_position_string(self):
@@ -64,12 +65,12 @@ class DFWindow:
         self.r_1 = start_row
         self.c_1 = start_col
 
-        self.r_2 = self.viewing_area.max_char_y_coord + self.r_1
-        self.c_2 = self.find_last_fitting_column()
+        self.r_2 = self.r_1 + self.viewing_area.max_char_y_coord
+        self.c_2 = self.c_1 + self.find_last_fitting_column() - 1
 
     def show_data_window_in_viewing_area(self):#, start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
-                self.get_window_string())
+            self.get_window_string())
 
     def show_data_on_screen(self, screen):
         self.viewing_area.show_on_screen(screen, self.get_window_string())
@@ -78,7 +79,8 @@ class DFWindow:
         self.viewing_area.add_to_screen(screen, self.get_window_string())
 
     def find_last_fitting_column(self):
-        rel_positions = [p - self.positions[self.c_1] for p in self.positions]
+        rel_positions = [p - self.positions[self.c_1] for p in self.positions
+                         if p - self.positions[self.c_1] >= 0]
         max_j = np.argmax([p for p in rel_positions
                            if p <= self.viewing_area.max_char_x_coord])
         return max_j
@@ -111,7 +113,7 @@ class DFWindow:
                                          start_col=self.c_1 - 1)
 
     def move_down(self):
-        if self.r_1 < self.full_df.shape[0]:
+        if self.r_2 < self.full_df.shape[0]:
             self.update_dataframe_coords(start_row=self.r_1 + 1,
                                          start_col=self.c_1)
 
@@ -174,6 +176,7 @@ class ViewingArea:
             displays a representation of the viewing area using curses,
             and also displays the corners of the content bounding box.
         """
+
     def __init__(self, pad_x, pad_y):
         """Initialize the real estate of the padded viewing area
     
@@ -295,7 +298,7 @@ class ViewingArea:
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
     #stdscr = curses.initscr()
-    stdscr.clear() # 
+    stdscr.clear()
     viewing_area = ViewingArea(8, 2) 
     df_window = DFWindow(df, viewing_area)
 
@@ -306,10 +309,7 @@ def key_press_and_print_df(stdscr, df):
     key = -1
     # The scroller loop
     while key not in [ENTER, QUIT]:
-
-
         key = stdscr.getch()
-
         # Movement based on vim keys
         if key in [SCROLL_LEFT, curses.KEY_LEFT]:
             df_window.move_left()
