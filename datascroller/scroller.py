@@ -34,9 +34,10 @@ class DFWindow:
         self.full_df = pandas_df
         self.viewing_area = viewing_area
         self.positions = self.build_position_list()
+        self.rows_to_print = (self.viewing_area.bottommost_char -
+                              self.viewing_area.topmost_char + 1)
 
         self.update_dataframe_coords()
-        print("I've been updated 1")
 
     def get_dataframe_window(self):
         """DataFrame window of form self.df[r_1:r_2, c_1:c_2]"""
@@ -55,18 +56,17 @@ class DFWindow:
         padded_string = window_string.replace('\n', row_padding)
         return padded_string
 
-    def get_position_string(self):
+    def get_location_string(self):
         """Creates a header showing where the top left df corner is"""
         # TODO (baogorek): Handle thousands and millions
-        position_string = 'R' + str(self.r_1) + 'C' + str(self.c_1)
-        return position_string
+        location_string = 'R' + str(self.r_1) + 'C' + str(self.c_1)
+        return location_string
 
     def update_dataframe_coords(self, start_row=0, start_col=0):
         self.r_1 = start_row
         self.c_1 = start_col
-
-        self.r_2 = self.r_1 + self.viewing_area.max_char_y_coord
-        self.c_2 = self.c_1 + self.find_last_fitting_column() - 1
+        self.r_2 = self.r_1 + self.rows_to_print
+        self.c_2 = self.find_last_fitting_column()
 
     def show_data_window_in_viewing_area(self):#, start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
@@ -79,15 +79,37 @@ class DFWindow:
         self.viewing_area.add_to_screen(screen, self.get_window_string())
 
     def find_last_fitting_column(self):
-        rel_positions = [p - self.positions[self.c_1] for p in self.positions
-                         if p - self.positions[self.c_1] >= 0]
-        max_j = np.argmax([p for p in rel_positions
-                           if p <= self.viewing_area.max_char_x_coord])
-        return max_j
+        """Finds the largest self.c_1 value s.t. window fits in pane
+        
+        It is important to test the positions with the actual rows, since
+        certain values that may or may not appear will change the size of
+        the printing window.
+        """
+        k = self.c_1
+        row_len = 0
+        while ((k <= self.full_df.shape[1]) and 
+              (row_len + self.viewing_area.pad_chars_x <=
+               self.viewing_area.rightmost_char)):
+            k = k + 1
+            row_len = len(self.full_df
+                              .iloc[self.r_1:self.r_2, self.c_1:k]
+                              .to_string().split('\n')[-1])
+        return k - 1
 
     def build_position_list(self):
-        """list of character positions for each variable (x dimension)"""
-        positions = [0]
+        """list of cumulative character for each variable (x dimension)
+       
+        Most useful to printing are positions of where the columns end,
+        not where the columns start. 
+
+        For instance, `df2 = pd.DataFrame([['red', 'blue']])` would lead
+        to a position list of 6 and 12, given the 4 characters for the
+        index, and also the whitespace characters for spacing.
+
+        NOTE: This method is no longer used since find_last_fitting_column
+        was changed. Deprecated.
+        """
+        positions = []
         for j in range(1, self.full_df.shape[1] + 1):
            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
            positions.append(len(row_str))
@@ -123,11 +145,12 @@ class DFWindow:
                                          start_col=self.c_1)
 
     def page_down(self):
-        page_size = self.r_2 - self.r_1
-        if self.r_1 + page_size > self.full_df.shape[0] - 1:
-            page_size = self.full_df.shape[0] - self.r_1 + 1
-        self.update_dataframe_coords(start_row=self.r_1 + page_size,
-                                     start_col=self.c_1)
+        if self.r_2 < self.full_df.shape[0] - 1:
+            page_size = self.rows_to_print
+            if self.r_1 + page_size > self.full_df.shape[0] - 1:
+                page_size = self.full_df.shape[0] - self.r_1 + 1
+            self.update_dataframe_coords(start_row=self.r_1 + page_size,
+                                         start_col=self.c_1)
 
     def page_up(self):
         page_size = self.r_2 - self.r_1
@@ -147,10 +170,6 @@ class ViewingArea:
 
         Attributes
         ----------
-        max_char_x_coord : int
-            The maximum curses coordinate for the col dimension, padded area
-        max_char_y_coord : int
-            The maximum curses coordinate for the row dimension, padded area
         total_chars_x: int
             The vertical pane dimension
         total_chars_y: int
@@ -193,9 +212,6 @@ class ViewingArea:
         term_size = shutil.get_terminal_size()
         self.total_chars_x = term_size.columns
         self.total_chars_y = term_size.lines
-
-        self.max_char_x_coord = self.total_chars_x - 2 * self.pad_chars_x - 1
-        self.max_char_y_coord = self.total_chars_y - 2 * self.pad_chars_y - 1
 
         self.leftmost_char = pad_x
         self.rightmost_char = self.total_chars_x - pad_x - 1
@@ -303,7 +319,7 @@ def key_press_and_print_df(stdscr, df):
     df_window = DFWindow(df, viewing_area)
 
     df_window.add_data_to_screen(stdscr)
-    stdscr.addstr(0, 0, df_window.get_position_string())
+    stdscr.addstr(0, 0, df_window.get_location_string())
     stdscr.refresh()
 
     key = -1
@@ -330,7 +346,7 @@ def key_press_and_print_df(stdscr, df):
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
-        stdscr.addstr(0, 0, df_window.get_position_string())
+        stdscr.addstr(0, 0, df_window.get_location_string())
         stdscr.refresh()
 
     stdscr.clear()
