@@ -1,13 +1,7 @@
-from distutils.core import setup
+from setuptools import setup
 
-LONG_DESCRIPTION = """
-datascroller - data scrolling in the terminal!
-
-Welcome to the datascroller project! While IDEs and notebooks are excellent
-or interactive data exploration, there will always be some of us who prefer
-to stay in the terminal. For exploring Pandas data frames, that meant
-painstakingly tedius use of .iloc, until now...
-"""
+with open('README.md') as f:
+    long_description = f.read()
 
 setup(
   name='datascroller',
@@ -15,7 +9,7 @@ setup(
   version='1.1.0',
   license='MIT',
   description='Data scrolling in the terminal',
-  long_description=LONG_DESCRIPTION,
+  long_description=long_description,
   long_description_content_type='text/markdown',
   author='Ben Ogorek',
   author_email='baogorek@gmail.com',

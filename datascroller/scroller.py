@@ -115,15 +115,6 @@ class DFWindow:
            positions.append(len(row_str))
         return positions
 
-    def get_horizontal_strlen(self):
-        return len(self.print().split('\n')[0])
-    
-    def get_vertical_strlen(self):
-        return self.bottom - self.top
-    
-    def print(self):
-        return self.data.to_string()
-
     def move_right(self):
         if self.c_2 < self.full_df.shape[1]:
             self.update_dataframe_coords(start_row=self.r_1,
