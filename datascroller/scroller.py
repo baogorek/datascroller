@@ -6,15 +6,8 @@ import pandas as pd
 import numpy as np
 import time
 
-# dev script
-#import pandas as pd
-#train_df = pd.read_csv('/mnt/c/devl/data/Car.csv')
-#load_ext autoreload
-#autoreload 2
-#from datascroller.scroller import *
 
-
-# poor man's config file ------------------------------------------------------
+# hard-coded config TODO(baogorek): allow config file -------------------------
 ENTER = 10 
 QUIT = 113
 
