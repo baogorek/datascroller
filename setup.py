@@ -23,7 +23,8 @@ setup(
           'pandas',
           'windows-curses ; platform_system=="Windows"',
       ],
-  scripts=['bin/scroll'],
+  scripts=['bin/scroll',
+           'bin/scroll_demo'],
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
