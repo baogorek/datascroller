@@ -1,7 +1,12 @@
+#!/usr/bin/env python
+
 import curses
+import time
 
 def getkey(stdscr):
     curses.curs_set(0)
+    stdscr.addstr(0, 0, 'Press a key, any key!')
+    stdscr.refresh()
     while True:
         key = stdscr.getch()
         if key != -1:
@@ -9,4 +14,5 @@ def getkey(stdscr):
     return key
 
 if __name__ == "__main__":
- print(curses.wrapper(getkey))
+    key = curses.wrapper(getkey)
+    print('The curses keycode is ' +  str(key))

@@ -21,7 +21,8 @@ setup(
           'windows-curses ; platform_system=="Windows"',
       ],
   scripts=['bin/scroll',
-           'bin/scroll_demo'],
+           'bin/scroll_demo',
+           'bin/getkey'],
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
