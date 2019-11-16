@@ -1,16 +1,7 @@
 #!/usr/bin/env python
 
-import sys
 import pandas as pd
-from datascroller import scroll_csv
+from datascroller import scroll, demo
 
-import pkg_resources
-
-# __name__ in case you're within the package
-# - otherwise it would be 'lidtk' in this example as it is the package name
-#path = 'classifiers/text_cat/REAMDE.md'  # always use slash
-#filepath = pkg_resources.resource_filename(__name__, path)
-
-csv = pkg_resources.resource_filename(__name__, 'demo_data/titanic.csv')
-
-scroll_csv(csv)
+df = demo.read_titanic()
+scroll(df)

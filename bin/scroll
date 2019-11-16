@@ -6,7 +6,6 @@ from datascroller import scroll_csv
 
 # https://stackoverflow.com/questions/9725675/is-there-a-standard-format-for-command-line-shell-help-text
 if len(sys.argv) <= 1:
-    print("""scroll utility
-usage: scroll path/to/csv_file""")
+    print("""scroll utility usage: scroll path/to/csv_file""")
 else:
    scroll_csv(sys.argv[1])
