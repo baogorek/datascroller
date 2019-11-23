@@ -15,19 +15,20 @@ setup(
     author_email='baogorek@gmail.com',
     url='https://github.com/baogorek/datascroller',
     download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
-    keywords = ['data', 'dataframe', 'viewer'],
-    install_requires= [
+    keywords=['data', 'dataframe', 'viewer'],
+    include_package_data=True, 
+    install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',
     ],
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'scroll_demo=datascroller.command_line:run_demo',
             'scroll=datascroller.command_line:run_scroll',
             'getkey=datascroller.command_line:run_getkey'
         ],
     },
-    classifiers = [
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: User Interfaces',
