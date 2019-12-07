@@ -6,7 +6,7 @@ with open('README.md') as f:
 setup(
     name='datascroller',
     packages=['datascroller'],
-    version='1.1.0.rc1',
+    version='1.1.0.rc2',
     license='MIT',
     description='Data scrolling in the terminal',
     long_description=long_description,

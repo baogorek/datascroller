@@ -6,9 +6,7 @@ or interactive data exploration, there will always be some of us who prefer
 to stay in the terminal. For exploring Pandas data frames, that meant
 painstakingly tedius use of .iloc, until now...
 
-![](resources/demo.gif)
-*Note: commands shown on the demo are out of date as of version 0.9.2.
-See Usage and Examples below.*
+[![datascroller](https://www.youtube.com/watch?v=mewJAcurJPg)](https://www.youtube.com/watch?v=mewJAcurJPg "datascroller")
 
 ## Installation
 ### via pip
@@ -17,38 +15,51 @@ pip install datascroller
 ```
 
 ## Usage
-### The binary
+
+### A quick demo
+In a command line environment where datascroller is installed, run
+`scroll_demo` and refer to the "Keys" Section below. Press "q" to quit.
+
+### The CSV scroller binary
 In a command line environment where datascroller is installed, run
 `scroll <path to your csv>` and refer to the "Keys" Section for navigation.
+Press "q" to quit.
 
 ### Within Python or iPython
-Import the `scroll` function and call scroll with a Pandas DataFrame as an
-argument:
+Import the `scroll` function from the `datascroller` module.
+Call `scroll` with a Pandas DataFrame as the sole argument:
+
 ```
 import pandas as pd
-from datascroller.scroller import scroll
+from datascroller import scroll
+
 my_df = pd.read_csv('<path to your csv>')
 scroll(my_df)
 ```
-Press 'q' to quit viewing.
+
+See the "Keys" section below for navidation. Press 'q' to quit viewing.
 
 ### Keys
 Until configuration options are provided in a later version, the keys are set
 up to resemble Vim's edit mode.
 
 The following keys are currently supported:
-#### Movement
-  - h: move to the left
-  - j: move down
-  - k: move up
-  - l: move left 
-#### Quick Movement
-  - Ctrl + F: Page down
-  - Ctrl + B: Page up (not working as well for some reason)
-#### Exiting
-  - q
+
+- Movement
+  + h: move to the left
+  + j: move down
+  + k: move up
+  + l: move left 
+
+- Quick Movement
+  + Ctrl + F: Page down
+  + Ctrl + B: Page up (not working as well for some reason)
+
+- Exiting
+  + q
 
 ### Examples
+
 Using iPython is a good way to try out datascroller interactively:
 ```
 import pandas as pd
@@ -61,22 +72,29 @@ scroll(train)
 ```
 
 ## Classes within datascroller
+
 Making datascroller work in arbitrarily sized terminal windows is challenging.
 The ViewingArea and DFWindow classes help with keeping track of state and
 separating concepts.
+
 ### ViewingArea
+
 The ViewingArea class represents the character matrix available to curses. The
 following example instantiates a ViewingArea object with character paddings
 of 4 and 2 in the horizonal and vertical orientations, respectively:
+
 ```
 from datascroller.scroller import ViewingArea
 va = ViewingArea(4, 2)
 va.show_curses_representation()
 ```
+
 The `show_curses_representation()` method provides a brief visual display of
 the character matrix and the bounds of display for the data window.
 ![](resources/show_curses_representation.png)
+
 ### DFWindow
+
 The DFWindow class is responsible for maintaining a subset of the original data
 frame, made clear by its flagship method:
 ```
