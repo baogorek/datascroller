@@ -5,7 +5,10 @@ Welcome to the datascroller project! While IDEs and notebooks are excellent
 or interactive data exploration, there will always be some of us who prefer
 to stay in the terminal. For exploring Pandas data frames, that meant
 painstakingly tedius use of .iloc, until now...
-[![datascroller](http://img.youtube.com/vi/mewJAcurJPg/0.jpg)](http://www.youtube.com/watch?v=mewJAcurJPg "datascroller")
+
+See datascroller in action on [YouTube](http://www.youtube.com/watch?v=mewJAcurJPg):
+
+[![datascroller](resources/datascroller_video.png)](http://www.youtube.com/watch?v=mewJAcurJPg "datascroller")
 
 ## Installation
 ### via pip
