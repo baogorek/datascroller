@@ -5,7 +5,6 @@ function install_test_requirements(){
 }
 
 function run_test(){
-
     flake8 \
     --max-line-length 160 \
     ./datascroller
