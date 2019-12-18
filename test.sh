@@ -4,4 +4,5 @@
 
 flake8 \
 --max-line-length 160 \
+--exclude __init__.py \
 ./datascroller

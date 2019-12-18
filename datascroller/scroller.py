@@ -1,14 +1,12 @@
 import sys
-import os
 import shutil
 import curses
 import pandas as pd
-import numpy as np
 import time
 
 
 # hard-coded config TODO(baogorek): allow config file -------------------------
-ENTER = 10 
+ENTER = 10
 QUIT = 113
 
 SCROLL_LEFT = 104
@@ -18,11 +16,12 @@ SCROLL_UP = 107
 
 PAGE_DOWN = 6
 PAGE_UP = 2
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 
 class DFWindow:
     """The data frame window"""
+
     def __init__(self, pandas_df, viewing_area):
         self.full_df = pandas_df
         self.viewing_area = viewing_area
@@ -61,7 +60,7 @@ class DFWindow:
         self.r_2 = self.r_1 + self.rows_to_print
         self.c_2 = self.find_last_fitting_column()
 
-    def show_data_window_in_viewing_area(self):#, start_row=0, start_col=0):
+    def show_data_window_in_viewing_area(self):  # start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
             self.get_window_string())
 
@@ -73,16 +72,16 @@ class DFWindow:
 
     def find_last_fitting_column(self):
         """Finds the largest self.c_1 value s.t. window fits in pane
-        
+
         It is important to test the positions with the actual rows, since
         certain values that may or may not appear will change the size of
         the printing window.
         """
         k = self.c_1
         row_len = 0
-        while ((k <= self.full_df.shape[1]) and 
-              (row_len + self.viewing_area.pad_chars_x <=
-               self.viewing_area.rightmost_char)):
+        while ((k <= self.full_df.shape[1]) and
+                (row_len + self.viewing_area.pad_chars_x
+                    <= self.viewing_area.rightmost_char)):
             k = k + 1
             row_len = len(self.full_df
                               .iloc[self.r_1:self.r_2, self.c_1:k]
@@ -91,9 +90,9 @@ class DFWindow:
 
     def build_position_list(self):
         """list of cumulative character for each variable (x dimension)
-       
+
         Most useful to printing are positions of where the columns end,
-        not where the columns start. 
+        not where the columns start.
 
         For instance, `df2 = pd.DataFrame([['red', 'blue']])` would lead
         to a position list of 6 and 12, given the 4 characters for the
@@ -104,8 +103,8 @@ class DFWindow:
         """
         positions = []
         for j in range(1, self.full_df.shape[1] + 1):
-           row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
-           positions.append(len(row_str))
+            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
+            positions.append(len(row_str))
         return positions
 
     def move_right(self):
@@ -139,7 +138,7 @@ class DFWindow:
     def page_up(self):
         page_size = self.r_2 - self.r_1
         if self.r_1 - page_size < 0:
-            page_size = self.r_1 
+            page_size = self.r_1
         self.update_dataframe_coords(start_row=self.r_1 - page_size,
                                      start_col=self.c_1)
 
@@ -147,7 +146,7 @@ class DFWindow:
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
 
-        This class is specifically designed to minimize confusion. It takes 
+        This class is specifically designed to minimize confusion. It takes
         as input pane dimensions but calculates seemingly trivial quantities
         like the maximum coordinates (1 less). The show and print methods
         provide a sanity check to the developer in later stages.
@@ -182,7 +181,7 @@ class ViewingArea:
 
     def __init__(self, pad_x, pad_y):
         """Initialize the real estate of the padded viewing area
-    
+
         Parameters
         ----------
         pad_chars_x: int
@@ -209,8 +208,8 @@ class ViewingArea:
             row_list.append('P' * self.total_chars_x)
         for i in range(self.total_chars_y - 2 * self.pad_chars_y):
             row_list.append('P' * self.pad_chars_x
-                           + 'X' * (self.total_chars_x - 2 * self.pad_chars_x)
-                           + 'P' * self.pad_chars_x)
+                            + 'X' * (self.total_chars_x - 2 * self.pad_chars_x)
+                            + 'P' * self.pad_chars_x)
         for k in range(self.pad_chars_y):
             row_list.append('P' * self.total_chars_x)
         return row_list
@@ -256,7 +255,7 @@ class ViewingArea:
         time.sleep(1)
         curses.curs_set(1)
 
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_YELLOW) # id 1
+        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_YELLOW)  # id 1
         screen.attron(curses.color_pair(1))
 
         screen.addstr(self.topmost_char, self.leftmost_char, 'A')
@@ -282,7 +281,7 @@ class ViewingArea:
             time.sleep(3)
 
         screen.attroff(curses.color_pair(1))
-        curses.endwin() # NOTE: Still not sure about the persistance of screen
+        curses.endwin()  # NOTE: Still not sure about the persistance of screen
 
     def show_curses_representation(self, otherstring=None):
         curses.wrapper(self._display_string_rep_using_curses, otherstring)
@@ -297,9 +296,9 @@ class ViewingArea:
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
-    #stdscr = curses.initscr()
+    # stdscr = curses.initscr()
     stdscr.clear()
-    viewing_area = ViewingArea(8, 2) 
+    viewing_area = ViewingArea(8, 2)
     df_window = DFWindow(df, viewing_area)
 
     df_window.add_data_to_screen(stdscr)
@@ -344,12 +343,15 @@ def scroll(scrollable):
     else:
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
+
 def scroll_csv(csv_path):
     pandas_df = pd.read_csv(csv_path)
     scroll(pandas_df)
 
+
 def main():
     scroll_csv(sys.argv[1])
+
 
 if __name__ == '__main__':
     main()
