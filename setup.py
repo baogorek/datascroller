@@ -14,8 +14,7 @@ setup(
     author='Ben Ogorek',
     author_email='baogorek@gmail.com',
     url='https://github.com/baogorek/datascroller',
-    download_url='https://github.com \
-        /baogorek/datascroller/archive/v1.1.0.tar.gz',
+    download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
     keywords=['data', 'dataframe', 'viewer'],
     include_package_data=True,
     install_requires=[
