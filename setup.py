@@ -6,7 +6,7 @@ with open('README.md') as f:
 setup(
     name='datascroller',
     packages=['datascroller'],
-    version='1.1.0',
+    version='1.2.0',
     license='MIT',
     description='Data scrolling in the terminal',
     long_description=long_description,
@@ -16,7 +16,7 @@ setup(
     url='https://github.com/baogorek/datascroller',
     download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
     keywords=['data', 'dataframe', 'viewer'],
-    include_package_data=True, 
+    include_package_data=True,
     install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',

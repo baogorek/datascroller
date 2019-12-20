@@ -4,10 +4,11 @@ import argparse
 
 from datascroller import scroll, scroll_csv, demo
 
+
 def getkey(stdscr):
     curses.curs_set(0)
-    #curses.halfdelay(1) # Half-delay mode => getch blocks for x tenths of sec
-    stdscr.nodelay(1) # NoDelay mode on => getch is non-blocking
+    # curses.halfdelay(1) # Half-delay mode => getch blocks for x tenths of sec
+    stdscr.nodelay(1)  # NoDelay mode on => getch is non-blocking
     stdscr.addstr(0, 0, 'Press a key, any key!')
     stdscr.refresh()
     while True:
@@ -18,13 +19,16 @@ def getkey(stdscr):
         time.sleep(.3)
     return key1, key2
 
+
 def run_getkey():
     key1, key2 = curses.wrapper(getkey)
-    print('The curses keycode is ' +  str(key1) + ' and ', str(key2))
+    print('The curses keycode is ' + str(key1) + ' and ', str(key2))
+
 
 def run_demo():
     df = demo.read_titanic()
     scroll(df)
+
 
 def run_scroll():
     parser = argparse.ArgumentParser(
@@ -35,7 +39,7 @@ def run_scroll():
               - h: move to the left
               - j: move down
               - k: move up
-              - l: move left 
+              - l: move left
             # Quick Movement
               - Ctrl + F: Page down
               - Ctrl + B: Page up (not working as well for some reason)
