@@ -346,7 +346,11 @@ def scroll(scrollable):
 
 def scroll_csv(csv_path, sep=',', encoding='utf-8'):
     pandas_df = pd.read_csv(csv_path, sep=sep, encoding=encoding, dtype=object)
-    scroll(pandas_df)
+    if not pandas_df.empty:
+        scroll(pandas_df)
+        #print(pandas_df)
+    else: # TODO(johncmerfeld): Is this a bad error message?
+        print('Empty dataframe. Make sure separator and encoding are correct.')
 
 
 def main():
