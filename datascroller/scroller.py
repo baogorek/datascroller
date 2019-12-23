@@ -344,8 +344,8 @@ def scroll(scrollable):
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
 
-def scroll_csv(csv_path):
-    pandas_df = pd.read_csv(csv_path, dtype=object)
+def scroll_csv(csv_path, sep=',', encoding='utf-8'):
+    pandas_df = pd.read_csv(csv_path, sep=sep, encoding=encoding, dtype=object)
     scroll(pandas_df)
 
 

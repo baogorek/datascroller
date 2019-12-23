@@ -48,5 +48,9 @@ def run_scroll():
         """, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('csv_filepath',
                         help='a csv filepath, relative or absolute')
+    parser.add_argument("-s", "--sep", choices=[',', '|', ';', ':', ' ', '\t'], default=',""',
+                        help="csv separator, choose between ',', '|', ';', ':', ' ', '\\t'")
+    parser.add_argument("-e", "--enc", choices=['utf_8', 'utf_7', 'utf_16', 'utf_32'], default='utf_8',
+                        help="csv separator, choose between 'utf_8', 'utf_7', 'utf_16', 'utf_32'")
     args = parser.parse_args()
-    scroll_csv(args.csv_filepath)
+    scroll_csv(args.csv_filepath, args.sep, args.enc)
