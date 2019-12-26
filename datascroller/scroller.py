@@ -235,6 +235,9 @@ class ViewingArea:
     def _add_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
 
+        # only necessary if we want to use color. First argument is an ID for
+        #   this pairing. Second and third are the text and background colors
+        #   respectively
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
 
         # for list of curses attributes, see http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html
