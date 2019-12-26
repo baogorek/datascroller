@@ -242,7 +242,7 @@ class ViewingArea:
             screen.addstr(self.topmost_char, self.leftmost_char,
                           otherstring)
             screen.chgat(self.topmost_char, self.leftmost_char,
-                          self.total_chars_x, curses.color_pair(1) | curses.A_UNDERLINE)
+                          self.total_chars_x, curses.color_pair(1) | curses.A_UNDERLINE | curses.A_BOLD)
         except curses.error:
             pass
 
