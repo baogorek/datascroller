@@ -234,9 +234,15 @@ class ViewingArea:
     # TODO(baogorek): figure out what to do with function above
     def _add_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
+
+        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
+
+        # for list of curses attributes, see http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html
         try:
             screen.addstr(self.topmost_char, self.leftmost_char,
                           otherstring)
+            screen.chgat(self.topmost_char, self.leftmost_char,
+                          self.total_chars_x, curses.color_pair(1) | curses.A_UNDERLINE | curses.A_BOLD)
         except curses.error:
             pass
 
