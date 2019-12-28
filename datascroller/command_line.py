@@ -45,7 +45,9 @@ def run_scroll():
               - Ctrl + B: Page up (not working as well for some reason)
             # Exiting
               - q
-        """, formatter_class=argparse.RawTextHelpFormatter)
+        """
+        , usage='scroll -h csv_filepath [-s separator] [-e encoding]'
+        , formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('csv_filepath',
                         help='a csv filepath, relative or absolute')
     parser.add_argument("-s", "--sep", choices=[',', '|', ';', ':', ' ', '\t'], default=',""',
