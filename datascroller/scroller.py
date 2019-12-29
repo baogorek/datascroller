@@ -16,6 +16,11 @@ SCROLL_UP = 107
 
 PAGE_DOWN = 6
 PAGE_UP = 2
+
+# The init_pair(n, f, b) function changes the definition of
+# color pair n, to foreground color f and background color b
+curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
+
 # ------------------------------------------------------------------------------
 
 
@@ -235,19 +240,12 @@ class ViewingArea:
     def _add_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
 
-        # only necessary if we want to use color. First argument is an ID for
-        #   this pairing. Second and third are the text and background colors
-        #   respectively
-        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
-
-        # for list of curses attributes, see http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html
         try:
             screen.addstr(self.topmost_char, self.leftmost_char,
-                          otherstring)
+                             otherstring)
             screen.chgat(self.topmost_char, self.leftmost_char,
-                          self.total_chars_x, curses.color_pair(1)
-                                            | curses.A_UNDERLINE
-                                            | curses.A_BOLD)
+                            self.total_chars_x, curses.color_pair(1)
+                            | curses.A_UNDERLINE | curses.A_BOLD)
         except curses.error:
             pass
 
