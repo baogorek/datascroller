@@ -239,6 +239,7 @@ class ViewingArea:
     # TODO(baogorek): figure out what to do with function above
     def _add_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
+
         # The init_pair(n, f, b) function changes the definition of
         # color pair n, to foreground color f and background color b
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
