@@ -24,6 +24,8 @@ class DFWindow:
 
     def __init__(self, pandas_df, viewing_area):
         self.full_df = pandas_df
+        (self.total_rows, self.total_cols) = pandas_df.shape
+
         self.viewing_area = viewing_area
         self.positions = self.build_position_list()
         self.rows_to_print = (self.viewing_area.bottommost_char -
@@ -51,7 +53,10 @@ class DFWindow:
     def get_location_string(self):
         """Creates a header showing where the top left df corner is"""
         # TODO (baogorek): Handle thousands and millions
-        location_string = 'R' + str(self.r_1) + 'C' + str(self.c_1)
+        location_string = ('Rows ' + str(self.r_1) + '-' + str(self.r_2) +
+            ' of ' + str(self.total_rows) + '\nCols ' + str(self.c_1) + '-' +
+            str(self.c_2) + ' of ' + str(self.total_cols))
+
         return location_string
 
     def update_dataframe_coords(self, start_row=0, start_col=0):
@@ -234,7 +239,7 @@ class ViewingArea:
     # TODO(baogorek): figure out what to do with function above
     def _add_string_using_curses(self, screen, otherstring):
         """Prints strings for use with the scroller"""
-        
+
         # The init_pair(n, f, b) function changes the definition of
         # color pair n, to foreground color f and background color b
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
