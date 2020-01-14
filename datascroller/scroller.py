@@ -53,9 +53,18 @@ class DFWindow:
     def get_location_string(self):
         """Creates a header showing where the top left df corner is"""
         # TODO (baogorek): Handle thousands and millions
-        location_string = ('Rows ' + str(self.r_1) + '-' + str(self.r_2) +
-            ' of ' + str(self.total_rows) + '\nCols ' + str(self.c_1) + '-' +
-            str(self.c_2) + ' of ' + str(self.total_cols))
+        location_string = ('Rows ' +
+                           str(self.r_1) +
+                           '-' +
+                           str(self.r_2) +
+                           ' of ' +
+                           str(self.total_rows) +
+                           '\nCols ' +
+                           str(self.c_1) +
+                           '-' +
+                           str(self.c_2) +
+                           ' of ' +
+                           str(self.total_cols))
 
         return location_string
 
@@ -242,14 +251,14 @@ class ViewingArea:
 
         # The init_pair(n, f, b) function changes the definition of
         # color pair n, to foreground color f and background color b
-        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK);
+        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
         # NOTE: see http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/attrib.html
         try:
             screen.addstr(self.topmost_char, self.leftmost_char,
-                             otherstring)
+                          otherstring)
             screen.chgat(self.topmost_char, self.leftmost_char,
                          self.total_chars_x, curses.color_pair(1)
-                             | curses.A_UNDERLINE | curses.A_BOLD)
+                         | curses.A_UNDERLINE | curses.A_BOLD)
         except curses.error:
             pass
 
@@ -357,8 +366,14 @@ def scroll(scrollable):
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
 
-def scroll_csv(csv_path):
-    pandas_df = pd.read_csv(csv_path, dtype=object)
+def scroll_csv(csv_path,
+               sep,
+               encoding):
+
+    pandas_df = pd.read_csv(csv_path,
+                            dtype=object,
+                            sep=sep,
+                            encoding=encoding)
     scroll(pandas_df)
 
 

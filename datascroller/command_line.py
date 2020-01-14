@@ -30,7 +30,7 @@ def run_demo():
     scroll(df)
 
 
-def run_scroll():
+def create_parser():
     parser = argparse.ArgumentParser(
         description="""Scroll a CSV from the command line with datascroller
 
@@ -46,7 +46,28 @@ def run_scroll():
             # Exiting
               - q
         """, formatter_class=argparse.RawTextHelpFormatter)
+
     parser.add_argument('csv_filepath',
                         help='a csv filepath, relative or absolute')
-    args = parser.parse_args()
-    scroll_csv(args.csv_filepath)
+
+    parser.add_argument('--sep',
+                        dest='sep',
+                        default=',',
+                        help='delimiter to user when reading csv'
+                        )
+    parser.add_argument('--encoding',
+                        dest='encoding',
+                        default=None,
+                        help='encoding to use for UTF when reading csv'
+                        )
+    return parser
+
+
+def run_scroll(input_args=None):
+
+    parser = create_parser()
+    args = parser.parse_args(input_args)
+
+    scroll_csv(args.csv_filepath,
+               sep=args.sep,
+               encoding=args.encoding)
