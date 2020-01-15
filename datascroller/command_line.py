@@ -53,7 +53,7 @@ def create_parser():
     parser.add_argument('--sep',
                         dest='sep',
                         default=',',
-                        help='delimiter to user when reading csv'
+                        help='delimiter to use when reading csv'
                         )
     parser.add_argument('--encoding',
                         dest='encoding',
