@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
 
-# make sure to install test library with pip install pytest-flake8
+# make sure to install test library with pip install pytest
 
-pytest --flake8
+pytest
