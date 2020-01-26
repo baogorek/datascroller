@@ -57,6 +57,9 @@ The following keys are currently supported:
   + Ctrl + F: Page down
   + Ctrl + B: Page up (not working as well for some reason)
 
+- Search by line
+  + Press `;`, then type a line number and press `Enter`
+
 - Exiting
   + q
 
