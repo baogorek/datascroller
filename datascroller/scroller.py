@@ -175,7 +175,8 @@ class DFWindow:
                                      start_col=self.c_1)
 
     def query(self, query):
-
+        # MAKE ME
+        return
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
