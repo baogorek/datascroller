@@ -16,6 +16,9 @@ SCROLL_UP = 107
 
 PAGE_DOWN = 6
 PAGE_UP = 2
+
+QUERY = 47 # '/'
+LINE_SEARCH = 59 # ';'
 # ------------------------------------------------------------------------------
 
 
@@ -156,6 +159,19 @@ class DFWindow:
         self.update_dataframe_coords(start_row=self.r_1 - page_size,
                                      start_col=self.c_1)
 
+    def line_search(self, line):
+        new_start_row = 0
+        if line <= 0:
+            # go to top
+            pass
+        elif line >= self.full_df.shape[0] - self.rows_to_print:
+            # go to bottom
+            new_start_row = self.full_df.shape[0] - self.rows_to_print
+        else:
+            new_start_row = line
+
+        self.update_dataframe_coords(start_row=new_start_row,
+                                     start_col=self.c_1)
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -345,6 +361,10 @@ def key_press_and_print_df(stdscr, df):
             df_window.page_down()
         elif key == PAGE_UP:
             df_window.page_up()
+
+        # search functionality
+        elif key == LINE_SEARCH:
+            df_window.line_search(int(stdscr.getstr(0,0)))
         elif key == curses.KEY_RESIZE:
             print("Terminal resized. Please restart the scroller")
             break
