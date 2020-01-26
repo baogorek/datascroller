@@ -244,6 +244,9 @@ class ViewingArea:
             row_list.append('P' * self.total_chars_x)
         return row_list
 
+    def get_terminal_size(self):
+        return self.total_chars_x, self.total_chars_y
+
     def print_representation(self):
         rowlist = self._create_list_of_rowstrings()
         for j in range(self.total_chars_y - 1):
@@ -337,11 +340,19 @@ def key_press_and_print_df(stdscr, df):
     # stdscr = curses.initscr()
     stdscr.clear()
     viewing_area = ViewingArea(8, 2)
+    term_cols, term_rows = viewing_area.get_terminal_size()
     df_window = DFWindow(df, viewing_area)
 
     df_window.add_data_to_screen(stdscr)
     stdscr.addstr(0, 0, df_window.get_location_string())
     stdscr.refresh()
+
+    def my_raw_input(stdscr, r, c, prompt_string):
+        curses.echo()
+        stdscr.addstr(r, c, prompt_string)
+        stdscr.refresh()
+        input = stdscr.getstr(r, c + len(prompt_string), 20)
+        return input  #       ^^^^  reading input at next column
 
     key = -1
     # The scroller loop
@@ -364,7 +375,8 @@ def key_press_and_print_df(stdscr, df):
 
         # search functionality
         elif key == LINE_SEARCH:
-            df_window.line_search(int(stdscr.getstr(0,0)))
+            curses.echo()
+            df_window.line_search(int(my_raw_input(stdscr, term_rows - 1, 0, "Line search: ")))
         elif key == curses.KEY_RESIZE:
             print("Terminal resized. Please restart the scroller")
             break
