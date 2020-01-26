@@ -26,7 +26,8 @@ class DFWindow:
     """The data frame window"""
 
     def __init__(self, pandas_df, viewing_area):
-        self.full_df = pandas_df
+        self.original_df = pandas_df
+        self.full_df = self.original_df
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
@@ -172,6 +173,9 @@ class DFWindow:
 
         self.update_dataframe_coords(start_row=new_start_row,
                                      start_col=self.c_1)
+
+    def query(self, query):
+
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -334,6 +338,12 @@ class ViewingArea:
         """Same as above but does not refresh"""
         self._add_string_using_curses(screen, string)
 
+def get_user_input_with_prompt(stdscr, row, col, prompt):
+    curses.echo()
+    stdscr.addstr(row, col, prompt)
+    stdscr.refresh()
+    input = stdscr.getstr(row, col + len(prompt))
+    return input  #            ^^^^  reading input at next column
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
@@ -346,13 +356,6 @@ def key_press_and_print_df(stdscr, df):
     df_window.add_data_to_screen(stdscr)
     stdscr.addstr(0, 0, df_window.get_location_string())
     stdscr.refresh()
-
-    def my_raw_input(stdscr, r, c, prompt_string):
-        curses.echo()
-        stdscr.addstr(r, c, prompt_string)
-        stdscr.refresh()
-        input = stdscr.getstr(r, c + len(prompt_string), 20)
-        return input  #       ^^^^  reading input at next column
 
     key = -1
     # The scroller loop
@@ -375,8 +378,25 @@ def key_press_and_print_df(stdscr, df):
 
         # search functionality
         elif key == LINE_SEARCH:
-            curses.echo()
-            df_window.line_search(int(my_raw_input(stdscr, term_rows - 1, 0, "Line search: ")))
+            search_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                       "Line search: ")
+            if len(search_string) > 0:
+                try:
+                    df_window.line_search(int(search_string))
+                except ValueError:
+                    pass
+                    # TODO(johncmerfeld): Reprimand the user?
+
+        elif key == QUERY:
+            query_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                       "Pandas query: ")
+            if len(query_string) > 0:
+                try:
+                    df_window.query(query_string)
+                except SyntaxError:
+                    pass
+                    # TODO(johncmerfeld): Reprimand the user?
+
         elif key == curses.KEY_RESIZE:
             print("Terminal resized. Please restart the scroller")
             break
@@ -398,10 +418,7 @@ def scroll(scrollable):
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
 
-def scroll_csv(csv_path,
-               sep,
-               encoding):
-
+def scroll_csv(csv_path, sep, encoding):
     pandas_df = pd.read_csv(csv_path,
                             dtype=object,
                             sep=sep,
