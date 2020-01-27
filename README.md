@@ -51,7 +51,7 @@ The following keys are currently supported:
   + h: move to the left
   + j: move down
   + k: move up
-  + l: move left 
+  + l: move left
 
 - Quick Movement
   + Ctrl + F: Page down
@@ -59,6 +59,9 @@ The following keys are currently supported:
 
 - Search by line
   + Press `;`, then type a line number and press `Enter`
+
+- Filter columns
+  + Press `/`, then type a comma-separated list of columns (e.g. `/name, age, survived`) and press `Enter`
 
 - Exiting
   + q
@@ -109,7 +112,7 @@ def get_dataframe_window(self):
 ```
 DFWindow must be aware of the viewing area in order to set an appropriate value
 of `self.c_2`, and hence DFWindow requires an instance of ViewingArea for
-initialization. 
+initialization.
 ```
 import pandas as pd
 from datascroller.scroller import DFWindow
