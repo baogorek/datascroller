@@ -34,7 +34,7 @@ class DFWindow:
                               self.viewing_area.topmost_char + 1)
 
         self.highlight_mode = False
-        self.highlight_row, self.highlight_col = 0, 0
+        self.highlight_row = 0
 
         self.update_dataframe_coords()
 
@@ -168,8 +168,6 @@ class DFWindow:
 
     def toggle_highlight_mode(self):
         self.highlight_mode = not self.highlight_mode
-        # TODO maybe be smarter about this
-        self.highlight_row, self.highlight_col = 0, 0
         self.viewing_area.toggle_highlight_mode()
 
     def page_down(self):
@@ -247,7 +245,7 @@ class ViewingArea:
         self.bottommost_char = self.total_chars_y - pad_y - 1
 
         self.highlight_mode = False
-        self.highlight_row, self.highlight_col = 0, 0
+        self.highlight_row = 0
 
     def _create_list_of_rowstrings(self):
         """prints a representation of the viewing area to aid understanding"""
@@ -355,10 +353,10 @@ class ViewingArea:
     def toggle_highlight_mode(self):
         self.highlight_mode = not self.highlight_mode
 
-    # NOTE(johncmerfeld): do not use yet
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
     def move_highlight_left(self):
         self.highlight_col -= 1
-    # NOTE(johncmerfeld): do not use yet
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
     def move_highlight_right(self):
         self.highlight_col += 1
 
