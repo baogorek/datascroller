@@ -58,7 +58,7 @@ The following keys are currently supported:
   + Ctrl + B: Page up (not working as well for some reason)
 
 - Search by line
-  + Press `;`, then type a line number (e.g. `:1000` and press `Enter`
+  + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
 
 - Filter columns
   + Press `/`, then type a comma-separated list of columns (e.g. `/name, age, survived`) and press `Enter`
