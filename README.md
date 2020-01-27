@@ -67,8 +67,9 @@ The following keys are currently supported:
   + Press `/`, then type your query (use 'df' as the table name)
   + e.g. `/SELECT AVG(age) AS average_age, sex, survived FROM df GROUP BY sex, survived`
   + Then press `Enter`
+  + Note that you can execute new queries against the data frame you just created, or go back
 
-- Return from query view
+- Return from query view to entire data frame
   + b
 
 - Exiting
