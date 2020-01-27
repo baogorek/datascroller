@@ -60,8 +60,16 @@ The following keys are currently supported:
 - Search by line
   + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
 
-- Filter columns
+- Filter columns (NEVER MIND, MOVED ON)
   + Press `/`, then type a comma-separated list of columns (e.g. `/name, age, survived`) and press `Enter`
+
+- SQL querying
+  + Press `/`, then type your query (use 'df' as the table name)
+  + e.g. `/SELECT AVG(age) AS average_age, sex, survived FROM df GROUP BY sex, survived`
+  + Then press `Enter`
+
+- Return from query view
+  + b
 
 - Exiting
   + q

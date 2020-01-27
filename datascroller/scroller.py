@@ -3,7 +3,7 @@ import shutil
 import curses
 import pandas as pd
 import time
-
+from pandasql import sqldf
 
 # hard-coded config TODO(baogorek): allow config file -------------------------
 ENTER = 10
@@ -178,6 +178,10 @@ class DFWindow:
         raw_cols = query_string.split(",")
         cleaned_cols = [col.strip() for col in raw_cols]
         return DFWindow(self.full_df.filter(items = cleaned_cols), viewing_area)
+
+    def query2(self, query_string, viewing_area):
+        df = self.full_df
+        return DFWindow(sqldf(query_string, locals()), viewing_area)
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -391,11 +395,11 @@ def key_press_and_print_df(stdscr, df):
 
         elif key == QUERY:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "Column filter: ")
+                                                       "SQL query: ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
-                    df_window = df_window.query(query_string, viewing_area)
+                    df_window = df_window.query2(query_string, viewing_area)
                 except SyntaxError:
                     pass
                     # TODO(johncmerfeld): Reprimand the user?
