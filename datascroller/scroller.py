@@ -6,23 +6,28 @@ import time
 from pandasql import sqldf
 
 # hard-coded config TODO(baogorek): allow config file -------------------------
-ENTER = 10
-QUIT = 113
+ENTER           = 10
+QUIT            = 113 # 'q'
 
-HIGHLIGHT = 44      # ','
+HELP            = 39 # '''
+HIGHLIGHT       = 44 # ','
 
-SCROLL_LEFT = 104
-SCROLL_RIGHT = 108
-SCROLL_DOWN = 106
-SCROLL_UP = 107
+SCROLL_LEFT     = 104
+SCROLL_RIGHT    = 108
+SCROLL_DOWN     = 106
+SCROLL_UP       = 107
 
-PAGE_DOWN = 6
-PAGE_UP = 2
+PAGE_DOWN       = 6
+PAGE_UP         = 2
 
-FILTER = 46         # '.'
-QUERY = 47          # '/'
-LINE_SEARCH = 59    # ';'
-BACK = 98           # 'b'
+FILTER          = 46 # '.'
+QUERY           = 47 # '/'
+LINE_SEARCH     = 59 # ';'
+BACK            = 98 # 'b'
+# ------------------------------------------------------------------------------
+# Display constants (maybe shouldn't be configurable)
+HELP_INDENT = 30
+
 # ------------------------------------------------------------------------------
 
 
@@ -171,10 +176,6 @@ class DFWindow:
             self.update_dataframe_coords(start_row=self.r_1 - 1,
                                          start_col=self.c_1)
 
-    def toggle_highlight_mode(self):
-        self.highlight_mode = not self.highlight_mode
-        self.viewing_area.toggle_highlight_mode()
-
     def page_down(self):
         if self.r_2 < self.full_df.shape[0] - 1:
             page_size = self.rows_to_print
@@ -189,6 +190,10 @@ class DFWindow:
             page_size = self.r_1
         self.update_dataframe_coords(start_row=self.r_1 - page_size,
                                      start_col=self.c_1)
+
+    def toggle_highlight_mode(self):
+        self.highlight_mode = not self.highlight_mode
+        self.viewing_area.toggle_highlight_mode()
 
     def line_search(self, line):
         new_start_row = 0
@@ -403,6 +408,12 @@ class ViewingArea:
     def move_highlight_up(self):
         self.highlight_row -= 1
 
+# TODO(johncmerfeld): this should respond dynamically to config file
+def get_help_string():
+    help_string = ('Down/Up: j/k \t Left/Right: h/l \t Page Down/Up: ctrl+f/ctrl+b\t Quit: q\n' +
+                   'Line search: ;\t Query: /\t Exit query: b\t Highlight mode: ,\t Help menu: \'')
+
+    return help_string
 
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
@@ -420,6 +431,10 @@ def key_press_and_print_df(stdscr, df):
     df_window = DFWindow(df, viewing_area)
 
     df_window.add_data_to_screen(stdscr)
+
+    # NOTE: Should this initialize as true?
+    #       i.e. Should we always open with the help menu?
+    help_view = False
     stdscr.addstr(0, 0, df_window.get_location_string())
     stdscr.refresh()
 
@@ -437,13 +452,18 @@ def key_press_and_print_df(stdscr, df):
         elif key in [SCROLL_UP, curses.KEY_UP]:
             df_window.move_up()
 
-        elif key == HIGHLIGHT:
-            df_window.toggle_highlight_mode()
         # Moving fast
         elif key == PAGE_DOWN:
             df_window.page_down()
         elif key == PAGE_UP:
             df_window.page_up()
+
+        # alternate views
+        elif key == HIGHLIGHT:
+            df_window.toggle_highlight_mode()
+
+        elif key == HELP:
+            help_view = not help_view
 
         # search functionality
         elif key == LINE_SEARCH:
@@ -488,7 +508,10 @@ def key_press_and_print_df(stdscr, df):
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
-        stdscr.addstr(0, 0, df_window.get_location_string())
+        if help_view:
+            stdscr.addstr(0, 0, get_help_string())
+        else:
+            stdscr.addstr(0, 0, df_window.get_location_string())
         stdscr.refresh()
 
     stdscr.clear()

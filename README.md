@@ -80,6 +80,8 @@ The following keys are currently supported:
 - Exiting
   + q
 
+To see these keybindings at the top of the scroller screen, press `'`
+
 ### Examples
 
 Using iPython is a good way to try out datascroller interactively:
