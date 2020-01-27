@@ -19,6 +19,7 @@ PAGE_UP = 2
 
 QUERY = 47 # '/'
 LINE_SEARCH = 59 # ';'
+BACK = 98 # 'b'
 # ------------------------------------------------------------------------------
 
 
@@ -26,8 +27,7 @@ class DFWindow:
     """The data frame window"""
 
     def __init__(self, pandas_df, viewing_area):
-        self.original_df = pandas_df
-        self.full_df = self.original_df
+        self.full_df = pandas_df
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
@@ -174,9 +174,10 @@ class DFWindow:
         self.update_dataframe_coords(start_row=new_start_row,
                                      start_col=self.c_1)
 
-    def query(self, query):
-        # MAKE ME
-        return
+    def query(self, query_string, viewing_area):
+        raw_cols = query_string.split(",")
+        cleaned_cols = [col.strip() for col in raw_cols]
+        return DFWindow(self.full_df.filter(items = cleaned_cols), viewing_area)
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -389,14 +390,19 @@ def key_press_and_print_df(stdscr, df):
                     # TODO(johncmerfeld): Reprimand the user?
 
         elif key == QUERY:
-            query_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "Pandas query: ")
+            query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                       "Column filter: ")
+            query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
-                    df_window.query(query_string)
+                    df_window = df_window.query(query_string, viewing_area)
                 except SyntaxError:
                     pass
                     # TODO(johncmerfeld): Reprimand the user?
+
+        elif key == BACK:
+            # exit query mode, essentially
+            df_window = DFWindow(df, viewing_area)
 
         elif key == curses.KEY_RESIZE:
             print("Terminal resized. Please restart the scroller")
