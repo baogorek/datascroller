@@ -32,7 +32,6 @@ class DFWindow:
 
         self.rows_to_print = (self.viewing_area.bottommost_char -
                               self.viewing_area.topmost_char + 1)
-        self.cols_to_print = 0 # allows highlight mode to work better
 
         self.highlight_mode = False
         self.highlight_row, self.highlight_col = 0, 0
@@ -78,8 +77,7 @@ class DFWindow:
         self.r_1 = start_row
         self.c_1 = start_col
         self.r_2 = self.r_1 + self.rows_to_print
-        self.cols_to_print = self.find_last_fitting_column()
-        self.c_2 = self.c_1 + self.cols_to_print
+        self.c_2 = self.find_last_fitting_column()
 
     def show_data_window_in_viewing_area(self):  # start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
@@ -172,7 +170,7 @@ class DFWindow:
         self.highlight_mode = not self.highlight_mode
         # TODO maybe be smarter about this
         self.highlight_row, self.highlight_col = 0, 0
-        self.viewing_area.toggle_highlight_mode(self.build_position_list())
+        self.viewing_area.toggle_highlight_mode()
 
     def page_down(self):
         if self.r_2 < self.full_df.shape[0] - 1:
@@ -295,9 +293,9 @@ class ViewingArea:
             screen.chgat(self.topmost_char, self.leftmost_char,
                          self.total_chars_x, curses.color_pair(1)
                          | curses.A_UNDERLINE | curses.A_BOLD)
-#            if self.highlight_mode:
-#                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.pad_chars_x,
-#                             self.rightmost_char, curses.A_STANDOUT)
+            if self.highlight_mode:
+                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.pad_chars_x,
+                             self.rightmost_char, curses.A_STANDOUT)
         except curses.error:
             pass
 
@@ -354,9 +352,7 @@ class ViewingArea:
         """Same as above but does not refresh"""
         self._add_string_using_curses(screen, string)
 
-    def toggle_highlight_mode(self, position_list):
-        self.highlight_row, self.highlight_col = 0, 0
-        self.position_list = position_list
+    def toggle_highlight_mode(self):
         self.highlight_mode = not self.highlight_mode
 
     # NOTE(johncmerfeld): do not use yet
