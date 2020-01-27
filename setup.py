@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',
+	'pandasql'
     ],
     entry_points={
         'console_scripts': [
