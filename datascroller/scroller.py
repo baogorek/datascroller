@@ -411,7 +411,7 @@ class ViewingArea:
 # TODO(johncmerfeld): this should respond dynamically to config file
 def get_help_string():
     help_string = ('Down/Up: j/k \t Left/Right: h/l \t Page Down/Up: ctrl+f/ctrl+b\t Quit: q\n' +
-                   'Line search: ;\t Query: /\t Exit query: b\t Highlight mode: ,\t Help menu: \'')
+                   'Line search: ;\t Query: /\t Exit query: b\t Highlight mode: ,\t Toggle help: \'')
 
     return help_string
 
