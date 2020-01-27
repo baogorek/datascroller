@@ -9,6 +9,8 @@ from pandasql import sqldf
 ENTER = 10
 QUIT = 113
 
+HIGHLIGHT = 44      # ','
+
 SCROLL_LEFT = 104
 SCROLL_RIGHT = 108
 SCROLL_DOWN = 106
@@ -32,9 +34,12 @@ class DFWindow:
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
-        self.positions = self.build_position_list()
+
         self.rows_to_print = (self.viewing_area.bottommost_char -
                               self.viewing_area.topmost_char + 1)
+
+        self.highlight_mode = False
+        self.highlight_row = 0
 
         self.update_dataframe_coords()
 
@@ -119,11 +124,15 @@ class DFWindow:
 
         NOTE: This method is no longer used since find_last_fitting_column
         was changed. Deprecated.
+
+        NOTE: This method might still prove useful if single-cell highlighting
+        is implemented
         """
+
         positions = []
-        for j in range(1, self.full_df.shape[1] + 1):
-            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
-            positions.append(len(row_str))
+        for j in range(1, self.total_cols + 1):
+            row_str = self.full_df.iloc[self.r_1:self.r_2, 0:j].to_string().split('\n')[self.highlight_row]
+            positions.append([len(row_str) - len(str(self.full_df.iloc[self.highlight_row, j - 1])), len(row_str)])
         return positions
 
     def move_right(self):
@@ -137,14 +146,34 @@ class DFWindow:
                                          start_col=self.c_1 - 1)
 
     def move_down(self):
-        if self.r_2 < self.full_df.shape[0]:
+        move_window = True
+        if self.highlight_mode:
+            # try to move highlight, otherwise move window
+            move_window = self.highlight_row == self.rows_to_print - 1
+            if not move_window:
+                self.viewing_area.move_highlight_down()
+                self.highlight_row += 1
+
+        if move_window and self.r_2 < self.full_df.shape[0]:
             self.update_dataframe_coords(start_row=self.r_1 + 1,
                                          start_col=self.c_1)
 
     def move_up(self):
-        if self.r_1 > 0:
+        move_window = True
+        if self.highlight_mode:
+            # try to move highlight, otherwise move window
+            move_window = self.highlight_row == 0
+            if not move_window:
+                self.viewing_area.move_highlight_up()
+                self.highlight_row -= 1
+
+        if move_window and self.r_1 > 0:
             self.update_dataframe_coords(start_row=self.r_1 - 1,
                                          start_col=self.c_1)
+
+    def toggle_highlight_mode(self):
+        self.highlight_mode = not self.highlight_mode
+        self.viewing_area.toggle_highlight_mode()
 
     def page_down(self):
         if self.r_2 < self.full_df.shape[0] - 1:
@@ -249,6 +278,9 @@ class ViewingArea:
         self.topmost_char = pad_y
         self.bottommost_char = self.total_chars_y - pad_y - 1
 
+        self.highlight_mode = False
+        self.highlight_row = 0
+
     def _create_list_of_rowstrings(self):
         """prints a representation of the viewing area to aid understanding"""
         row_list = []
@@ -296,6 +328,9 @@ class ViewingArea:
             screen.chgat(self.topmost_char, self.leftmost_char,
                          self.total_chars_x, curses.color_pair(1)
                          | curses.A_UNDERLINE | curses.A_BOLD)
+            if self.highlight_mode:
+                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.pad_chars_x,
+                             self.rightmost_char, curses.A_STANDOUT)
         except curses.error:
             pass
 
@@ -352,6 +387,23 @@ class ViewingArea:
         """Same as above but does not refresh"""
         self._add_string_using_curses(screen, string)
 
+    def toggle_highlight_mode(self):
+        self.highlight_mode = not self.highlight_mode
+
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
+    def move_highlight_left(self):
+        self.highlight_col -= 1
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
+    def move_highlight_right(self):
+        self.highlight_col += 1
+
+    def move_highlight_down(self):
+        self.highlight_row += 1
+
+    def move_highlight_up(self):
+        self.highlight_row -= 1
+
+
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
     stdscr.addstr(row, col, prompt)
@@ -384,6 +436,9 @@ def key_press_and_print_df(stdscr, df):
             df_window.move_down()
         elif key in [SCROLL_UP, curses.KEY_UP]:
             df_window.move_up()
+
+        elif key == HIGHLIGHT:
+            df_window.toggle_highlight_mode()
         # Moving fast
         elif key == PAGE_DOWN:
             df_window.page_down()
