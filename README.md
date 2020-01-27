@@ -48,14 +48,19 @@ up to resemble Vim's edit mode.
 The following keys are currently supported:
 
 - Movement
-  + h: move to the left
-  + j: move down
-  + k: move up
-  + l: move left
+  + `h`: move to the left
+  + `j`: move down
+  + `k`: move up
+  + `l`: move left
 
 - Quick Movement
-  + Ctrl + F: Page down
-  + Ctrl + B: Page up (not working as well for some reason)
+  + `Ctrl + F`: Page down
+  + `Ctrl + B`: Page up (not working as well for some reason)
+
+- Highlight mode
+  + Press `,` to highlight the current line for easier horizontal reading.
+  + Scrolling up and down will move the highlight bar within the window
+  + Press `,` again to exit highlight mode
 
 - Search by line
   + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
