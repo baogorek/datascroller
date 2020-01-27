@@ -5,6 +5,7 @@ ipython-genutils==0.2.0
 jedi==0.15.1
 numpy==1.17.3
 pandas==0.25.2
+pandasql==0.7.3
 parso==0.5.1
 pexpect==4.7.0
 pickleshare==0.7.5

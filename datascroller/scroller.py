@@ -17,9 +17,10 @@ SCROLL_UP = 107
 PAGE_DOWN = 6
 PAGE_UP = 2
 
-QUERY = 47 # '/'
-LINE_SEARCH = 59 # ';'
-BACK = 98 # 'b'
+FILTER = 46         # '.'
+QUERY = 47          # '/'
+LINE_SEARCH = 59    # ';'
+BACK = 98           # 'b'
 # ------------------------------------------------------------------------------
 
 
@@ -174,14 +175,21 @@ class DFWindow:
         self.update_dataframe_coords(start_row=new_start_row,
                                      start_col=self.c_1)
 
-    def query(self, query_string, viewing_area):
+    def filter(self, query_string, viewing_area):
         raw_cols = query_string.split(",")
         cleaned_cols = [col.strip() for col in raw_cols]
         return DFWindow(self.full_df.filter(items = cleaned_cols), viewing_area)
 
-    def query2(self, query_string, viewing_area):
+    def query(self, query_string, viewing_area):
         df = self.full_df
         return DFWindow(sqldf(query_string, locals()), viewing_area)
+
+        # in progress
+        ## this rigamarole means the user can use any table name they want
+        #    query_words = query_string.lower().split()
+        #    from_index = query_words.index("from")
+        #    table_name = query_words[from_index + 1]
+        #    exec("%s = %d" % (table_name, self.full_df))
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -393,13 +401,24 @@ def key_press_and_print_df(stdscr, df):
                     pass
                     # TODO(johncmerfeld): Reprimand the user?
 
-        elif key == QUERY:
+        elif key == FILTER:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "SQL query: ")
+                                                       "Column filter: ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
-                    df_window = df_window.query2(query_string, viewing_area)
+                    df_window = df_window.filter(query_string, viewing_area)
+                except pandasql.sqldf.PandaSQLException: # TODO better exception handling
+                    pass
+                    # TODO(johncmerfeld): Reprimand the user?
+
+        elif key == QUERY:
+            query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                       "SQL query (use 'df' as table name): ")
+            query_string = query_bytes.decode(encoding="utf-8")
+            if len(query_string) > 0:
+                try:
+                    df_window = df_window.query(query_string, viewing_area)
                 except SyntaxError:
                     pass
                     # TODO(johncmerfeld): Reprimand the user?

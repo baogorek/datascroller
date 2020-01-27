@@ -60,8 +60,8 @@ The following keys are currently supported:
 - Search by line
   + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
 
-- Filter columns (NEVER MIND, MOVED ON)
-  + Press `/`, then type a comma-separated list of columns (e.g. `/name, age, survived`) and press `Enter`
+- Filter columns
+  + Press `.`, then type a comma-separated list of columns (e.g. `.name, age, survived`) and press `Enter`
 
 - SQL querying
   + Press `/`, then type your query (use 'df' as the table name)
