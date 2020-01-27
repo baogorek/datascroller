@@ -62,7 +62,7 @@ The following keys are currently supported:
   + Scrolling up and down will move the highlight bar within the window
   + Press `,` again to exit highlight mode
 
-- Search by line
+- Goto line
   + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
 
 - Filter columns
@@ -74,7 +74,7 @@ The following keys are currently supported:
   + Then press `Enter`
   + Note that you can execute new queries against the data frame you just created, or go back
 
-- Return from query view to entire data frame
+- Return from query/filter view to entire data frame
   + b
 
 - Exiting

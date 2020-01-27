@@ -25,10 +25,6 @@ QUERY           = 47 # '/'
 LINE_SEARCH     = 59 # ';'
 BACK            = 98 # 'b'
 # ------------------------------------------------------------------------------
-# Display constants (maybe shouldn't be configurable)
-HELP_INDENT = 30
-
-# ------------------------------------------------------------------------------
 
 
 class DFWindow:
@@ -410,8 +406,8 @@ class ViewingArea:
 
 # TODO(johncmerfeld): this should respond dynamically to config file
 def get_help_string():
-    help_string = ('Down/Up: j/k \t Left/Right: h/l \t Page Down/Up: ctrl+f/ctrl+b\t Quit: q\n' +
-                   'Line search: ;\t Query: /\t Exit query: b\t Highlight mode: ,\t Toggle help: \'')
+    help_string = ('Ver: j/k \t Hor: h/l \t Page Down/Up: ctrl+f/+b\t Quit: q\t Help: \'\n' +
+                   'Goto line: ;\t Filter: .\t Query: /\t Exit query/filter: b\t Highlight mode: ,')
 
     return help_string
 
@@ -468,7 +464,7 @@ def key_press_and_print_df(stdscr, df):
         # search functionality
         elif key == LINE_SEARCH:
             search_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "Line search: ")
+                                                       "Goto line: ")
             if len(search_string) > 0:
                 try:
                     df_window.line_search(int(search_string))
