@@ -70,9 +70,7 @@ class DFWindow:
                            '-' +
                            str(self.c_2) +
                            ' of ' +
-                           str(self.total_cols) +
-                           '\t highlight: (' + str(self.highlight_row) + ',' + str(self.highlight_col) + ')' +
-                           '\t position list: ' + str(self.build_position_list()))
+                           str(self.total_cols))
 
         return location_string
 
@@ -123,36 +121,24 @@ class DFWindow:
 
         NOTE: This method is no longer used since find_last_fitting_column
         was changed. Deprecated.
+
+        NOTE: This method might still prove useful if single-cell highlighting
+        is implemented
         """
+
         positions = []
-        for j in range(1, self.full_df.shape[1] + 1):
-            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
-            positions.append(len(row_str))
+        for j in range(1, self.total_cols + 1):
+            row_str = self.full_df.iloc[self.r_1:self.r_2, 0:j].to_string().split('\n')[self.highlight_row]
+            positions.append([len(row_str) - len(str(self.full_df.iloc[self.highlight_row, j - 1])), len(row_str)])
         return positions
 
     def move_right(self):
-        move_window = True
-        if self.highlight_mode:
-            # try to move highlight, otherwise move window
-            move_window = self.highlight_col == self.cols_to_print
-            if not move_window:
-                self.viewing_area.move_highlight_right()
-                self.highlight_col += 1
-
-        if move_window and self.c_2 < self.full_df.shape[1]:
+        if self.c_2 < self.full_df.shape[1]:
             self.update_dataframe_coords(start_row=self.r_1,
                                          start_col=self.c_1 + 1)
 
     def move_left(self):
-        move_window = True
-        if self.highlight_mode:
-            # try to move highlight, otherwise move window
-            move_window = self.highlight_col == 0
-            if not move_window:
-                self.viewing_area.move_highlight_left()
-                self.highlight_col -= 1
-
-        if move_window and self.c_1 > 0:
+        if self.c_1 > 0:
             self.update_dataframe_coords(start_row=self.r_1,
                                          start_col=self.c_1 - 1)
 
@@ -162,7 +148,7 @@ class DFWindow:
             # try to move highlight, otherwise move window
             move_window = self.highlight_row == self.rows_to_print - 1
             if not move_window:
-                self.viewing_area.move_highlight_down(self.build_position_list())
+                self.viewing_area.move_highlight_down()
                 self.highlight_row += 1
 
         if move_window and self.r_2 < self.full_df.shape[0]:
@@ -175,7 +161,7 @@ class DFWindow:
             # try to move highlight, otherwise move window
             move_window = self.highlight_row == 0
             if not move_window:
-                self.viewing_area.move_highlight_up(self.build_position_list())
+                self.viewing_area.move_highlight_up()
                 self.highlight_row -= 1
 
         if move_window and self.r_1 > 0:
@@ -309,9 +295,9 @@ class ViewingArea:
             screen.chgat(self.topmost_char, self.leftmost_char,
                          self.total_chars_x, curses.color_pair(1)
                          | curses.A_UNDERLINE | curses.A_BOLD)
-            if self.highlight_mode:
-                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.position_list[self.highlight_col],
-                             self.position_list[self.highlight_col + 1] - self.position_list[self.highlight_col], curses.A_STANDOUT)
+#            if self.highlight_mode:
+#                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.pad_chars_x,
+#                             self.rightmost_char, curses.A_STANDOUT)
         except curses.error:
             pass
 
@@ -373,19 +359,18 @@ class ViewingArea:
         self.position_list = position_list
         self.highlight_mode = not self.highlight_mode
 
+    # NOTE(johncmerfeld): do not use yet
     def move_highlight_left(self):
         self.highlight_col -= 1
-
+    # NOTE(johncmerfeld): do not use yet
     def move_highlight_right(self):
         self.highlight_col += 1
 
-    def move_highlight_down(self, position_list):
+    def move_highlight_down(self):
         self.highlight_row += 1
-        self.position_list = position_list
 
-    def move_highlight_up(self, position_list):
+    def move_highlight_up(self):
         self.highlight_row -= 1
-        self.position_list = position_list
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
