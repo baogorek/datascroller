@@ -85,6 +85,17 @@ class DFWindow:
         self.r_2 = self.r_1 + self.rows_to_print
         self.c_2 = self.find_last_fitting_column()
 
+    def update_viewing_area(self, viewing_area):
+        """Update viewing area. Useful if terminal is resized while
+        user is viewing a subset of the original dataframe"""
+        self.viewing_area = viewing_area
+
+        self.rows_to_print = (self.viewing_area.bottommost_char -
+                              self.viewing_area.topmost_char + 1)
+
+        # update current view before accepting new input
+        self.update_dataframe_coords(self.r_1, self.c_1)
+
     def show_data_window_in_viewing_area(self):  # start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
             self.get_window_string())
@@ -504,7 +515,7 @@ def key_press_and_print_df(stdscr, df):
         elif key == curses.KEY_RESIZE:
             viewing_area = ViewingArea(8, 2)
             term_cols, term_rows = viewing_area.get_terminal_size()
-            df_window = DFWindow(df, viewing_area)
+            df_window.update_viewing_area(viewing_area)
             df_window.add_data_to_screen(stdscr)
 
         stdscr.clear()
