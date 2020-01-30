@@ -501,8 +501,9 @@ def key_press_and_print_df(stdscr, df):
             df_window = DFWindow(df, viewing_area)
 
         elif key == curses.KEY_RESIZE:
-            print("Terminal resized. Please restart the scroller")
-            break
+            viewing_area = ViewingArea(8, 2)
+            df_window = DFWindow(df, viewing_area)
+            df_window.add_data_to_screen(stdscr)
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
