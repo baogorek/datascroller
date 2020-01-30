@@ -461,7 +461,8 @@ def key_press_and_print_df(stdscr, df):
             df_window.toggle_highlight_mode()
 
         elif key == HELP:
-            help_view = not help_view
+            #help_view = not help_view
+            pass
 
         # search functionality
         elif key == LINE_SEARCH:
@@ -502,6 +503,7 @@ def key_press_and_print_df(stdscr, df):
 
         elif key == curses.KEY_RESIZE:
             viewing_area = ViewingArea(8, 2)
+            term_cols, term_rows = viewing_area.get_terminal_size()
             df_window = DFWindow(df, viewing_area)
             df_window.add_data_to_screen(stdscr)
 
