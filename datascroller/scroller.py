@@ -415,7 +415,9 @@ def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
     stdscr.addstr(row, col, prompt)
     stdscr.refresh()
+    curses.curs_set(1)
     input = stdscr.getstr(row, col + len(prompt))
+    curses.curs_set(0)
     return input  #            ^^^^  reading input at next column
 
 def key_press_and_print_df(stdscr, df):
