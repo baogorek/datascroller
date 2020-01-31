@@ -1,8 +1,8 @@
 import sys
 import shutil
 import curses
-import pandas as pd
 import time
+import pandas as pd
 from pandasql import sqldf
 
 # hard-coded config TODO(baogorek): allow config file -------------------------
