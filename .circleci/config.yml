@@ -32,12 +32,12 @@ jobs:
             pytest
 
       - run:
-        name: linting with Flake8
-        command: |
-          . venv/bin/activate
-          pip install .[linting]
-          flake8 --max-line-length 160 \
-            --per-file-ignores='datascroller/__init__.py:F401' --verbose
+          name: linting with Flake8
+          command: |
+            . venv/bin/activate
+            pip install .[linting]
+            flake8 --max-line-length 160 \
+              --per-file-ignores='datascroller/__init__.py:F401' --verbose
 
       - store_artifacts:
           path: test-reports
