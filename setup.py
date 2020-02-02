@@ -21,6 +21,9 @@ setup(
         'pandas',
         'windows-curses ; platform_system=="Windows"',
     ],
+    extras_require={
+        'testing': ['pytest'],
+    },
     entry_points={
         'console_scripts': [
             'scroll_demo=datascroller.command_line:run_demo',
