@@ -23,6 +23,7 @@ setup(
     ],
     extras_require={
         'testing': ['pytest'],
+        'linting': ['flake8'],
     },
     entry_points={
         'console_scripts': [

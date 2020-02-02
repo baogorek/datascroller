@@ -5,4 +5,4 @@ class TestBasic(unittest.TestCase):
         self.x = 3
 
     def test_x(self):
-        self.assertEqual(self.x, 4)
+        self.assertEqual(self.x, 3)
