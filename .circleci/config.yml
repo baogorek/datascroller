@@ -18,23 +18,23 @@ jobs:
       - checkout
 
       - run:
-          name: install dependencies
+          name: install datascroller and dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
             pip install .
 
       - run:
-          name: run tests with PyTest
+          name: install pytest and run tests
           command: |
-            . venv/bin/activate
+            #. venv/bin/activate
             pip install .[testing]
             pytest
 
       - run:
-          name: linting with Flake8
+          name: install Flake8 and lint
           command: |
-            . venv/bin/activate
+            #. venv/bin/activate
             pip install .[linting]
             # stop the build if there are Python syntax errors or undefined names 
             flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
