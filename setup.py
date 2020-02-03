@@ -6,7 +6,7 @@ with open('README.md') as f:
 setup(
     name='datascroller',
     packages=['datascroller'],
-    version='1.2.0',
+    version='1.3.0',
     license='MIT',
     description='Data scrolling in the terminal',
     long_description=long_description,
@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',
+	'pandasql'
     ],
     entry_points={
         'console_scripts': [
