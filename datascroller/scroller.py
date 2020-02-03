@@ -6,24 +6,24 @@ import pandas as pd
 from pandasql import sqldf
 
 # hard-coded config TODO(baogorek): allow config file -------------------------
-ENTER           = 10
-QUIT            = 113 # 'q'
+ENTER = 10
+QUIT = 113  # 'q'
 
-HELP            = 39 # '''
-HIGHLIGHT       = 44 # ','
+HELP = 39  # '''
+HIGHLIGHT = 44  # ','
 
-SCROLL_LEFT     = 104
-SCROLL_RIGHT    = 108
-SCROLL_DOWN     = 106
-SCROLL_UP       = 107
+SCROLL_LEFT = 104
+SCROLL_RIGHT = 108
+SCROLL_DOWN = 106
+SCROLL_UP = 107
 
-PAGE_DOWN       = 6
-PAGE_UP         = 2
+PAGE_DOWN = 6
+PAGE_UP = 2
 
-FILTER          = 46 # '.'
-QUERY           = 47 # '/'
-LINE_SEARCH     = 59 # ';'
-BACK            = 98 # 'b'
+FILTER = 46  # '.'
+QUERY = 47  # '/'
+LINE_SEARCH = 59  # ';'
+BACK = 98  # 'b'
 # ------------------------------------------------------------------------------
 
 
@@ -219,18 +219,19 @@ class DFWindow:
     def filter(self, query_string, viewing_area):
         raw_cols = query_string.split(",")
         cleaned_cols = [col.strip() for col in raw_cols]
-        return DFWindow(self.full_df.filter(items = cleaned_cols), viewing_area)
+        return DFWindow(self.full_df.filter(items=cleaned_cols), viewing_area)
 
     def query(self, query_string, viewing_area):
         df = self.full_df
         return DFWindow(sqldf(query_string, locals()), viewing_area)
 
         # in progress
-        ## this rigamarole means the user can use any table name they want
+        # this rigamarole means the user can use any table name they want
         #    query_words = query_string.lower().split()
         #    from_index = query_words.index("from")
         #    table_name = query_words[from_index + 1]
         #    exec("%s = %d" % (table_name, self.full_df))
+
 
 class ViewingArea:
     """ Class representing the viewing area where dataframes are printed
@@ -406,6 +407,7 @@ class ViewingArea:
     def move_highlight_left(self):
         self.highlight_col -= 1
     # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
+
     def move_highlight_right(self):
         self.highlight_col += 1
 
@@ -416,11 +418,14 @@ class ViewingArea:
         self.highlight_row -= 1
 
 # TODO(johncmerfeld): this should respond dynamically to config file
+
+
 def get_help_string():
     help_string = ('Ver: j/k \t Hor: h/l \t Page Down/Up: ctrl+f/+b\t Quit: q\t Help: \'\n' +
                    'Goto line: ;\t Filter: .\t Query: /\t Exit query/filter: b\t Highlight mode: ,')
 
     return help_string
+
 
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
@@ -429,7 +434,8 @@ def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.curs_set(1)
     input = stdscr.getstr(row, col + len(prompt))
     curses.curs_set(0)
-    return input  #            ^^^^  reading input at next column
+    return input  # ^^^^  reading input at next column
+
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
@@ -488,18 +494,18 @@ def key_press_and_print_df(stdscr, df):
 
         elif key == FILTER:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "Column filter: ")
+                                                     "Column filter: ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
                     df_window = df_window.filter(query_string, viewing_area)
-                except pandasql.sqldf.PandaSQLException: # TODO better exception handling
+                except pandasql.sqldf.PandaSQLException:  # TODO better exception handling
                     pass
                     # TODO(johncmerfeld): Reprimand the user?
 
         elif key == QUERY:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
-                                                       "SQL query (use 'df' as table name): ")
+                                                     "SQL query (use 'df' as table name): ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
