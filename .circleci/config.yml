@@ -42,4 +42,4 @@ jobs:
           name: Test
           command: |
             . venv/bin/activate
-            pytest datascroller/
+            pytest
