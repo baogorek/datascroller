@@ -417,11 +417,70 @@ class ViewingArea:
         self.highlight_row -= 1
 
 # TODO(johncmerfeld): this should respond dynamically to config file
-def get_help_string():
-    help_string = ('Ver: j/k \t Hor: h/l \t Page Down/Up: ctrl+f/+b\t Quit: q\t Help: \'\n' +
-                   'Goto line: ;\t Filter: .\t Query: /\t Exit query/filter: b\t Highlight mode: ,\t\t\t\t\t\t\t\t\t\t.  \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t.\t\t\t\t\t\t\t . \t\t\t\t\t\t\t .')
+def add_help_string(screen, cols):
 
-    return help_string
+    # TODO(johncmerfeld): irrespective of file, code needs cleanup
+
+    #FIXME
+    cols -= 1
+
+    # TODO(johncmerfeld): This belongs in a file
+    banner = "             QUICK HELP                   "
+    scroll = "Scrolling - "
+    scroll_text = "Arrow keys or HJKL"
+    jump = "Page up / down - "
+    jump_text = "Ctrl+b / Ctrl+f"
+    goto = "Goto line - "
+    goto_text = ";"
+    filter = "Filter columns - "
+    filter_text = "."
+    query = "SQL query - "
+    query_text = "/"
+    back = "Exit filter/query view - "
+    back_text = "b"
+    highlight = "Highlight mode - "
+    highlight_text = ","
+    zoom = "Zoom in/out - "
+    zoom_text = "Cmd+ / Cmd-"
+    help = "Show/hide help - "
+    help_text = "'"
+    exit = "Exit scroller - "
+    exit_text = "q"
+
+    screen.addstr(0,0, banner, curses.A_BOLD)
+    screen.chgat(0, 0, cols + 1, curses.A_UNDERLINE)
+    screen.addstr(1,0, scroll, curses.A_BOLD)
+    screen.addstr(1,cols - len(scroll_text), scroll_text)
+    screen.addstr(2,0, jump, curses.A_BOLD)
+    screen.addstr(2,cols - len(jump_text), jump_text)
+    screen.addstr(3,0, goto, curses.A_BOLD)
+    screen.addstr(3,cols - len(goto_text), goto_text)
+    screen.addstr(4,0, filter, curses.A_BOLD)
+    screen.addstr(4,cols - len(filter_text), filter_text)
+    screen.addstr(5,0, query, curses.A_BOLD)
+    screen.addstr(5,cols - len(query_text), query_text)
+    screen.addstr(6,0, back, curses.A_BOLD)
+    screen.addstr(6,cols - len(back_text), back_text)
+    screen.addstr(7,0, highlight, curses.A_BOLD)
+    screen.addstr(7,cols - len(highlight_text), highlight_text)
+    screen.addstr(8,0, zoom, curses.A_BOLD)
+    screen.addstr(8,cols - len(zoom_text), zoom_text)
+    screen.addstr(9,0, help, curses.A_BOLD)
+    screen.addstr(9,cols - len(help_text), help_text)
+    screen.addstr(10,0, exit, curses.A_BOLD)
+    screen.addstr(10,cols - len(exit_text), exit_text)
+
+def show_help_view(screen, cols, rows):
+    width = 40
+    height = 20
+    box1 = screen.subwin(13, width, 1, cols - width)
+    box2 = screen.subwin(11, width - 2, 2, cols - width + 1)
+    box1.immedok(True) # updates automatically
+    box2.immedok(True)
+    box1.erase() # clears text
+    box1.box() # adds border
+    add_help_string(box2, width - 2)
+    #box2.addstr(0, 0, textwrap.fill(get_help_string(), 38))
 
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
@@ -520,13 +579,9 @@ def key_press_and_print_df(stdscr, df):
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
+
         if help_view:
-            box1 = stdscr.subwin(20, 40, 2, 80)
-            box2 = stdscr.subwin(18, 38, 3, 81)
-            box1.immedok(True)
-            box2.immedok(True)
-            box1.box()
-            box2.addstr(0, 0, textwrap.fill(get_help_string(), 38))
+            show_help_view(stdscr, term_cols, term_rows)
 
         stdscr.addstr(0, 0, df_window.get_location_string())
         stdscr.refresh()
