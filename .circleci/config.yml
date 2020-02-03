@@ -42,4 +42,4 @@ jobs:
           name: Testing
           command: |
             . venv/bin/activate
-            pytest
+            pytest test/
