@@ -1,6 +1,7 @@
 import sys
 import shutil
 import curses
+import textwrap
 import time
 import pandas as pd
 from pandasql import sqldf
@@ -418,7 +419,7 @@ class ViewingArea:
 # TODO(johncmerfeld): this should respond dynamically to config file
 def get_help_string():
     help_string = ('Ver: j/k \t Hor: h/l \t Page Down/Up: ctrl+f/+b\t Quit: q\t Help: \'\n' +
-                   'Goto line: ;\t Filter: .\t Query: /\t Exit query/filter: b\t Highlight mode: ,')
+                   'Goto line: ;\t Filter: .\t Query: /\t Exit query/filter: b\t Highlight mode: ,\t\t\t\t\t\t\t\t\t\t.  \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t.\t\t\t\t\t\t\t . \t\t\t\t\t\t\t .')
 
     return help_string
 
@@ -472,8 +473,7 @@ def key_press_and_print_df(stdscr, df):
             df_window.toggle_highlight_mode()
 
         elif key == HELP:
-            #help_view = not help_view
-            pass
+            help_view = not help_view
 
         # search functionality
         elif key == LINE_SEARCH:
@@ -521,9 +521,14 @@ def key_press_and_print_df(stdscr, df):
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
         if help_view:
-            stdscr.addstr(0, 0, get_help_string())
-        else:
-            stdscr.addstr(0, 0, df_window.get_location_string())
+            box1 = stdscr.subwin(20, 40, 2, 80)
+            box2 = stdscr.subwin(18, 38, 3, 81)
+            box1.immedok(True)
+            box2.immedok(True)
+            box1.box()
+            box2.addstr(0, 0, textwrap.fill(get_help_string(), 38))
+
+        stdscr.addstr(0, 0, df_window.get_location_string())
         stdscr.refresh()
 
     stdscr.clear()
