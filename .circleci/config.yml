@@ -21,7 +21,7 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -33,13 +33,13 @@ jobs:
           key: v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
 
       - run:
-          name: lint
+          name: Lint
           command: |
             . venv/bin/activate
             flake8 --max-line-length 160 --per-file-ignores='datascroller/__init__.py:F401' datascroller/
 
       - run:
-          name: test
+          name: Test
           command: |
             . venv/bin/activate
-            pytest
+            pytest datascroller/
