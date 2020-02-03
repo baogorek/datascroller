@@ -33,13 +33,13 @@ jobs:
           key: v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
 
       - run:
-          name: Lint
+          name: Linting
           command: |
             . venv/bin/activate
             flake8 --max-line-length 160 --per-file-ignores='datascroller/__init__.py:F401' datascroller/
 
       - run:
-          name: Test
+          name: Testing
           command: |
             . venv/bin/activate
             pytest
