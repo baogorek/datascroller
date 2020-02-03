@@ -11,10 +11,9 @@ setup(
     description='Data scrolling in the terminal',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Ben Ogorek',
-    author_email='baogorek@gmail.com',
+    author='Datascroller team',
+    author_email='baogorek@gmail.com, kevinjmerfeld@gmail.com, john.merfeld@gmail.com',
     url='https://github.com/baogorek/datascroller',
-    download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
     keywords=['data', 'dataframe', 'viewer'],
     include_package_data=True,
     install_requires=[
