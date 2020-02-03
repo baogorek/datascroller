@@ -478,7 +478,7 @@ def key_press_and_print_df(stdscr, df):
             df_window.toggle_highlight_mode()
 
         elif key == HELP:
-            #help_view = not help_view
+            # help_view = not help_view
             pass
 
         # search functionality
@@ -499,7 +499,7 @@ def key_press_and_print_df(stdscr, df):
             if len(query_string) > 0:
                 try:
                     df_window = df_window.filter(query_string, viewing_area)
-                except pandasql.sqldf.PandaSQLException:  # TODO better exception handling
+                except sqldf.PandaSQLException:  # TODO better exception handling
                     pass
                     # TODO(johncmerfeld): Reprimand the user?
 
