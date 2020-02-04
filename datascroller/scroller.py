@@ -5,27 +5,8 @@ import textwrap
 import time
 import pandas as pd
 from pandasql import sqldf
-
-# hard-coded config TODO(baogorek): allow config file -------------------------
-ENTER = 10
-QUIT = 113  # 'q'
-
-HELP = 39  # '''
-HIGHLIGHT = 44  # ','
-
-SCROLL_LEFT = 104
-SCROLL_RIGHT = 108
-SCROLL_DOWN = 106
-SCROLL_UP = 107
-
-PAGE_DOWN = 6
-PAGE_UP = 2
-
-FILTER = 46  # '.'
-QUERY = 47  # '/'
-LINE_SEARCH = 59  # ';'
-BACK = 98  # 'b'
-# ------------------------------------------------------------------------------
+from datascroller import help_screen as help
+from datascroller import keybindings as keys
 
 
 class DFWindow:
@@ -418,61 +399,16 @@ class ViewingArea:
     def move_highlight_up(self):
         self.highlight_row -= 1
 
-# TODO(johncmerfeld): this should respond dynamically to config file
+
 def add_help_string(screen, cols):
-
-    # TODO(johncmerfeld): irrespective of file, code needs cleanup
-
-    #FIXME
-    cols -= 1
-
-    # TODO(johncmerfeld): This belongs in a file
-    banner = "             QUICK HELP                   "
-    scroll = "Scrolling - "
-    scroll_text = "Arrow keys or HJKL"
-    jump = "Page up / down - "
-    jump_text = "Ctrl+b / Ctrl+f"
-    goto = "Goto line - "
-    goto_text = ";"
-    filter = "Filter columns - "
-    filter_text = "."
-    query = "SQL query - "
-    query_text = "/"
-    back = "Exit filter/query view - "
-    back_text = "b"
-    highlight = "Highlight mode - "
-    highlight_text = ","
-    zoom = "Zoom in/out - "
-    zoom_text = "Cmd+ / Cmd-"
-    help = "Show/hide help - "
-    help_text = "'"
-    exit = "Exit scroller - "
-    exit_text = "q"
-
-    screen.addstr(0,0, banner, curses.A_BOLD)
-    screen.chgat(0, 0, cols + 1, curses.A_UNDERLINE)
-    screen.addstr(1,0, scroll, curses.A_BOLD)
-    screen.addstr(1,cols - len(scroll_text), scroll_text)
-    screen.addstr(2,0, jump, curses.A_BOLD)
-    screen.addstr(2,cols - len(jump_text), jump_text)
-    screen.addstr(3,0, goto, curses.A_BOLD)
-    screen.addstr(3,cols - len(goto_text), goto_text)
-    screen.addstr(4,0, filter, curses.A_BOLD)
-    screen.addstr(4,cols - len(filter_text), filter_text)
-    screen.addstr(5,0, query, curses.A_BOLD)
-    screen.addstr(5,cols - len(query_text), query_text)
-    screen.addstr(6,0, back, curses.A_BOLD)
-    screen.addstr(6,cols - len(back_text), back_text)
-    screen.addstr(7,0, highlight, curses.A_BOLD)
-    screen.addstr(7,cols - len(highlight_text), highlight_text)
-    screen.addstr(8,0, zoom, curses.A_BOLD)
-    screen.addstr(8,cols - len(zoom_text), zoom_text)
-    screen.addstr(9,0, help, curses.A_BOLD)
-    screen.addstr(9,cols - len(help_text), help_text)
-    screen.addstr(10,0, exit, curses.A_BOLD)
-    screen.addstr(10,cols - len(exit_text), exit_text)
+    screen.addstr(0,0, help.BANNER, curses.A_BOLD)
+    screen.chgat(0,0, cols, curses.A_UNDERLINE)
+    for i, option in enumerate(help.MENU_OPTIONS):
+        exec("screen.addstr(i + 1, 1, help." + option + ", curses.A_BOLD)")
+        exec("screen.addstr(i + 1, cols - 1 - len(help." + option + "_TEXT), help." + option + "_TEXT)")
 
 def show_help_view(screen, cols, rows):
+    # TODO(johncmerfeld): too many constants in here
     width = 40
     height = 20
     box1 = screen.subwin(13, width, 1, cols - width)
@@ -482,8 +418,6 @@ def show_help_view(screen, cols, rows):
     box1.erase() # clears text
     box1.box() # adds border
     add_help_string(box2, width - 2)
-    #box2.addstr(0, 0, textwrap.fill(get_help_string(), 38))
-
 
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
@@ -494,6 +428,15 @@ def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.curs_set(0)
     return input  # ^^^^  reading input at next column
 
+def print_user_alert(stdscr, alert):
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    stdscr.addstr(0, 30, alert)
+    stdscr.chgat(0, 30, len(alert), curses.A_BOLD | curses.color_pair(2))
+
+def print_user_error(stdscr, error):
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+    stdscr.addstr(0, 30, error)
+    stdscr.chgat(0, 30, len(error), curses.A_BOLD | curses.color_pair(3))
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
@@ -505,73 +448,75 @@ def key_press_and_print_df(stdscr, df):
 
     df_window.add_data_to_screen(stdscr)
 
-    # NOTE: Should this initialize as true?
-    #       i.e. Should we always open with the help menu?
     help_view = False
+    err_string = ""
     stdscr.addstr(0, 0, df_window.get_location_string())
+
+    # On first open only, add hint for help menu
+    # NOTE: could leave it up, also.
+    print_user_alert(stdscr, "Press ' (single quote) for help menu")
     stdscr.refresh()
 
-    key = -1
+    key = keys.NULL_KEY
     # The scroller loop
-    while key not in [ENTER, QUIT]:
+    while key not in [keys.ENTER, keys.QUIT]:
+        err_string = ""
         key = stdscr.getch()
         # Movement based on vim keys
-        if key in [SCROLL_LEFT, curses.KEY_LEFT]:
+        if key in [keys.SCROLL_LEFT, curses.KEY_LEFT]:
             df_window.move_left()
-        elif key in [SCROLL_RIGHT, curses.KEY_RIGHT]:
+        elif key in [keys.SCROLL_RIGHT, curses.KEY_RIGHT]:
             df_window.move_right()
-        elif key in [SCROLL_DOWN, curses.KEY_DOWN]:
+        elif key in [keys.SCROLL_DOWN, curses.KEY_DOWN]:
             df_window.move_down()
-        elif key in [SCROLL_UP, curses.KEY_UP]:
+        elif key in [keys.SCROLL_UP, curses.KEY_UP]:
             df_window.move_up()
 
         # Moving fast
-        elif key == PAGE_DOWN:
+        elif key == keys.PAGE_DOWN:
             df_window.page_down()
-        elif key == PAGE_UP:
+        elif key == keys.PAGE_UP:
             df_window.page_up()
 
         # alternate views
-        elif key == HIGHLIGHT:
+        elif key == keys.HIGHLIGHT:
             df_window.toggle_highlight_mode()
 
-        elif key == HELP:
+        elif key == keys.HELP:
             help_view = not help_view
 
         # search functionality
-        elif key == LINE_SEARCH:
+        elif key == keys.LINE_SEARCH:
             search_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
                                                        "Goto line: ")
             if len(search_string) > 0:
                 try:
                     df_window.line_search(int(search_string))
                 except ValueError:
-                    pass
-                    # TODO(johncmerfeld): Reprimand the user?
+                    err_string = "Please enter a valid (integer) line number"
 
-        elif key == FILTER:
+        elif key == keys.FILTER:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
                                                      "Column filter: ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
-                try:
-                    df_window = df_window.filter(query_string, viewing_area)
-                except sqldf.PandaSQLException:  # TODO better exception handling
-                    pass
-                    # TODO(johncmerfeld): Reprimand the user?
+                df_window = df_window.filter(query_string, viewing_area)
+                # NOTE: if column names are invalid,
+                # an empty dataframe is returned.
+                # We could preempt this if we wanted.
 
-        elif key == QUERY:
+        elif key == keys.QUERY:
             query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
                                                      "SQL query (use 'df' as table name): ")
             query_string = query_bytes.decode(encoding="utf-8")
             if len(query_string) > 0:
                 try:
                     df_window = df_window.query(query_string, viewing_area)
-                except SyntaxError:
-                    pass
-                    # TODO(johncmerfeld): Reprimand the user?
+                except:
+                    err_string = "Syntax error in query"
+                    # TODO(johncmerfeld): be more specific with this error
 
-        elif key == BACK:
+        elif key == keys.BACK:
             # exit query mode, essentially
             df_window = DFWindow(df, viewing_area)
 
@@ -583,11 +528,14 @@ def key_press_and_print_df(stdscr, df):
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
+        stdscr.addstr(0, 0, df_window.get_location_string())
 
         if help_view:
             show_help_view(stdscr, term_cols, term_rows)
 
-        stdscr.addstr(0, 0, df_window.get_location_string())
+        if err_string:
+            print_user_error(stdscr, err_string)
+
         stdscr.refresh()
 
     stdscr.clear()
