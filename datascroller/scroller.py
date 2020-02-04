@@ -435,8 +435,8 @@ def print_user_alert(stdscr, alert):
 
 def print_user_error(stdscr, error):
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-    stdscr.addstr(0, 30, error)
-    stdscr.chgat(0, 30, len(error), curses.A_BOLD | curses.color_pair(3))
+    stdscr.addstr(0, 30, "Error: " + error)
+    stdscr.chgat(0, 30, len("Error: " + error), curses.A_BOLD | curses.color_pair(3))
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
