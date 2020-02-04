@@ -1,7 +1,6 @@
 import sys
 import shutil
 import curses
-import textwrap
 import time
 import pandas as pd
 from pandasql import sqldf
@@ -401,23 +400,25 @@ class ViewingArea:
 
 
 def add_help_string(screen, cols):
-    screen.addstr(0,0, help.BANNER, curses.A_BOLD)
-    screen.chgat(0,0, cols, curses.A_UNDERLINE)
+    screen.addstr(0, 0, help.BANNER, curses.A_BOLD)
+    screen.chgat(0, 0, cols, curses.A_UNDERLINE)
     for i, option in enumerate(help.MENU_OPTIONS):
         exec("screen.addstr(i + 1, 1, help." + option + ", curses.A_BOLD)")
         exec("screen.addstr(i + 1, cols - 1 - len(help." + option + "_TEXT), help." + option + "_TEXT)")
 
+
 def show_help_view(screen, cols, rows):
     # TODO(johncmerfeld): too many constants in here
     width = 40
-    height = 20
-    box1 = screen.subwin(13, width, 1, cols - width)
-    box2 = screen.subwin(11, width - 2, 2, cols - width + 1)
-    box1.immedok(True) # updates automatically
+    height = 13
+    box1 = screen.subwin(height, width, 1, cols - width)
+    box2 = screen.subwin(height - 2, width - 2, 2, cols - width + 1)
+    box1.immedok(True)  # updates automatically
     box2.immedok(True)
-    box1.erase() # clears text
-    box1.box() # adds border
+    box1.erase()  # clears text
+    box1.box()  # adds border
     add_help_string(box2, width - 2)
+
 
 def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.echo()
@@ -428,15 +429,18 @@ def get_user_input_with_prompt(stdscr, row, col, prompt):
     curses.curs_set(0)
     return input  # ^^^^  reading input at next column
 
+
 def print_user_alert(stdscr, alert):
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     stdscr.addstr(0, 30, alert)
     stdscr.chgat(0, 30, len(alert), curses.A_BOLD | curses.color_pair(2))
 
+
 def print_user_error(stdscr, error):
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
     stdscr.addstr(0, 30, "Error: " + error)
     stdscr.chgat(0, 30, len("Error: " + error), curses.A_BOLD | curses.color_pair(3))
+
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
@@ -512,7 +516,7 @@ def key_press_and_print_df(stdscr, df):
             if len(query_string) > 0:
                 try:
                     df_window = df_window.query(query_string, viewing_area)
-                except:
+                except:  # noqa: E722
                     err_string = "Syntax error in query"
                     # TODO(johncmerfeld): be more specific with this error
 
