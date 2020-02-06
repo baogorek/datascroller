@@ -11,7 +11,7 @@ setup(
     description='Data scrolling in the terminal',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Ben Ogorek, John Merfeld, Kevin Merfeld',
+    author='Ben Ogorek, John C. Merfeld, Kevin Merfeld',
     author_email='baogorek@gmail.com, john.merfeld@gmail.com, kevinjmerfeld@gmail.com',
     url='https://github.com/baogorek/datascroller',
     keywords=['data', 'dataframe', 'viewer'],
