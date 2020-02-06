@@ -1,8 +1,8 @@
 import os
 import sys
 import io
-
 import unittest
+
 from datascroller.scroller import ViewingArea
 
 
