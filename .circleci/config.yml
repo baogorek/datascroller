@@ -30,12 +30,6 @@ jobs:
             - ~/.cache 
 
       - run:
-          name: see what we have
-          command: |
-              ls
-              ls ~/repo
-
-      - run:
           name: Run inter
           command: |
             # stop the build if there are Python syntax errors or undefined names
