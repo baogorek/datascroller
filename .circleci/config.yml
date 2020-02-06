@@ -30,7 +30,7 @@ jobs:
             - ~/.cache 
 
       - run:
-          name: see what we have TODO: delete
+          name: see what we have
           command: |
               ls
               ls ~/repo
