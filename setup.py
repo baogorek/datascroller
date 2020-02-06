@@ -6,20 +6,20 @@ with open('README.md') as f:
 setup(
     name='datascroller',
     packages=['datascroller'],
-    version='1.2.0',
+    version='1.3.0',
     license='MIT',
     description='Data scrolling in the terminal',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Ben Ogorek',
-    author_email='baogorek@gmail.com',
+    author='Ben Ogorek, John C. Merfeld, Kevin Merfeld',
+    author_email='baogorek@gmail.com, john.merfeld@gmail.com, kevinjmerfeld@gmail.com',
     url='https://github.com/baogorek/datascroller',
-    download_url='https://github.com/baogorek/datascroller/archive/v1.1.0.tar.gz',
     keywords=['data', 'dataframe', 'viewer'],
     include_package_data=True,
     install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',
+        'pandasql'
     ],
     extras_require={
         'testing': ['pytest'],

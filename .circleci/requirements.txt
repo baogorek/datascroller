@@ -1,0 +1,4 @@
+flake8==3.7.9
+pandasql==0.7.3
+pytest==5.3.2
+twine==3.1.1

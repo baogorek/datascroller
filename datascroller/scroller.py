@@ -1,22 +1,11 @@
 import sys
 import shutil
 import curses
-import pandas as pd
 import time
-
-
-# hard-coded config TODO(baogorek): allow config file -------------------------
-ENTER = 10
-QUIT = 113
-
-SCROLL_LEFT = 104
-SCROLL_RIGHT = 108
-SCROLL_DOWN = 106
-SCROLL_UP = 107
-
-PAGE_DOWN = 6
-PAGE_UP = 2
-# ------------------------------------------------------------------------------
+import pandas as pd
+from pandasql import sqldf
+from datascroller import help_screen as help
+from datascroller import keybindings as keys
 
 
 class DFWindow:
@@ -27,9 +16,12 @@ class DFWindow:
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
-        self.positions = self.build_position_list()
+
         self.rows_to_print = (self.viewing_area.bottommost_char -
                               self.viewing_area.topmost_char + 1)
+
+        self.highlight_mode = False
+        self.highlight_row = 0
 
         self.update_dataframe_coords()
 
@@ -74,6 +66,17 @@ class DFWindow:
         self.r_2 = self.r_1 + self.rows_to_print
         self.c_2 = self.find_last_fitting_column()
 
+    def update_viewing_area(self, viewing_area):
+        """Update viewing area. Useful if terminal is resized while
+        user is viewing a subset of the original dataframe"""
+        self.viewing_area = viewing_area
+
+        self.rows_to_print = (self.viewing_area.bottommost_char -
+                              self.viewing_area.topmost_char + 1)
+
+        # update current view before accepting new input
+        self.update_dataframe_coords(self.r_1, self.c_1)
+
     def show_data_window_in_viewing_area(self):  # start_row=0, start_col=0):
         self.viewing_area.show_curses_representation(
             self.get_window_string())
@@ -114,11 +117,15 @@ class DFWindow:
 
         NOTE: This method is no longer used since find_last_fitting_column
         was changed. Deprecated.
+
+        NOTE: This method might still prove useful if single-cell highlighting
+        is implemented
         """
+
         positions = []
-        for j in range(1, self.full_df.shape[1] + 1):
-            row_str = self.full_df.iloc[0:2, 0:j].to_string().split('\n')[-1]
-            positions.append(len(row_str))
+        for j in range(1, self.total_cols + 1):
+            row_str = self.full_df.iloc[self.r_1:self.r_2, 0:j].to_string().split('\n')[self.highlight_row]
+            positions.append([len(row_str) - len(str(self.full_df.iloc[self.highlight_row, j - 1])), len(row_str)])
         return positions
 
     def move_right(self):
@@ -132,12 +139,28 @@ class DFWindow:
                                          start_col=self.c_1 - 1)
 
     def move_down(self):
-        if self.r_2 < self.full_df.shape[0]:
+        move_window = True
+        if self.highlight_mode:
+            # try to move highlight, otherwise move window
+            move_window = self.highlight_row == self.rows_to_print - 1
+            if not move_window:
+                self.viewing_area.move_highlight_down()
+                self.highlight_row += 1
+
+        if move_window and self.r_2 < self.full_df.shape[0]:
             self.update_dataframe_coords(start_row=self.r_1 + 1,
                                          start_col=self.c_1)
 
     def move_up(self):
-        if self.r_1 > 0:
+        move_window = True
+        if self.highlight_mode:
+            # try to move highlight, otherwise move window
+            move_window = self.highlight_row == 0
+            if not move_window:
+                self.viewing_area.move_highlight_up()
+                self.highlight_row -= 1
+
+        if move_window and self.r_1 > 0:
             self.update_dataframe_coords(start_row=self.r_1 - 1,
                                          start_col=self.c_1)
 
@@ -155,6 +178,40 @@ class DFWindow:
             page_size = self.r_1
         self.update_dataframe_coords(start_row=self.r_1 - page_size,
                                      start_col=self.c_1)
+
+    def toggle_highlight_mode(self):
+        self.highlight_mode = not self.highlight_mode
+        self.viewing_area.toggle_highlight_mode()
+
+    def line_search(self, line):
+        new_start_row = 0
+        if line <= 0:
+            # go to top
+            pass
+        elif line >= self.full_df.shape[0] - self.rows_to_print:
+            # go to bottom
+            new_start_row = self.full_df.shape[0] - self.rows_to_print
+        else:
+            new_start_row = line
+
+        self.update_dataframe_coords(start_row=new_start_row,
+                                     start_col=self.c_1)
+
+    def filter(self, query_string, viewing_area):
+        raw_cols = query_string.split(",")
+        cleaned_cols = [col.strip() for col in raw_cols]
+        return DFWindow(self.full_df.filter(items=cleaned_cols), viewing_area)
+
+    def query(self, query_string, viewing_area):
+        df = self.full_df
+        return DFWindow(sqldf(query_string, locals()), viewing_area)
+
+        # in progress
+        # this rigamarole means the user can use any table name they want
+        #    query_words = query_string.lower().split()
+        #    from_index = query_words.index("from")
+        #    table_name = query_words[from_index + 1]
+        #    exec("%s = %d" % (table_name, self.full_df))
 
 
 class ViewingArea:
@@ -215,6 +272,9 @@ class ViewingArea:
         self.topmost_char = pad_y
         self.bottommost_char = self.total_chars_y - pad_y - 1
 
+        self.highlight_mode = False
+        self.highlight_row = 0
+
     def _create_list_of_rowstrings(self):
         """prints a representation of the viewing area to aid understanding"""
         row_list = []
@@ -227,6 +287,9 @@ class ViewingArea:
         for k in range(self.pad_chars_y):
             row_list.append('P' * self.total_chars_x)
         return row_list
+
+    def get_terminal_size(self):
+        return self.total_chars_x, self.total_chars_y
 
     def print_representation(self):
         rowlist = self._create_list_of_rowstrings()
@@ -259,6 +322,9 @@ class ViewingArea:
             screen.chgat(self.topmost_char, self.leftmost_char,
                          self.total_chars_x, curses.color_pair(1)
                          | curses.A_UNDERLINE | curses.A_BOLD)
+            if self.highlight_mode:
+                screen.chgat(self.topmost_char + 1 + self.highlight_row, self.pad_chars_x,
+                             self.rightmost_char, curses.A_STANDOUT)
         except curses.error:
             pass
 
@@ -315,43 +381,165 @@ class ViewingArea:
         """Same as above but does not refresh"""
         self._add_string_using_curses(screen, string)
 
+    def toggle_highlight_mode(self):
+        self.highlight_mode = not self.highlight_mode
+
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
+    def move_highlight_left(self):
+        self.highlight_col -= 1
+    # NOTE(johncmerfeld): for single-cell highlighting -- do not use yet
+
+    def move_highlight_right(self):
+        self.highlight_col += 1
+
+    def move_highlight_down(self):
+        self.highlight_row += 1
+
+    def move_highlight_up(self):
+        self.highlight_row -= 1
+
+
+def add_help_string(screen, cols):
+    screen.addstr(0, 0, help.BANNER, curses.A_BOLD)
+    screen.chgat(0, 0, cols, curses.A_UNDERLINE)
+    for i, option in enumerate(help.MENU_OPTIONS):
+        exec("screen.addstr(i + 1, 1, help." + option + ", curses.A_BOLD)")
+        exec("screen.addstr(i + 1, cols - 1 - len(help." + option + "_TEXT), help." + option + "_TEXT)")
+
+
+def show_help_view(screen, cols, rows):
+    # TODO(johncmerfeld): too many constants in here
+    width = 40
+    height = 13
+    box1 = screen.subwin(height, width, 1, cols - width)
+    box2 = screen.subwin(height - 2, width - 2, 2, cols - width + 1)
+    box1.immedok(True)  # updates automatically
+    box2.immedok(True)
+    box1.erase()  # clears text
+    box1.box()  # adds border
+    add_help_string(box2, width - 2)
+
+
+def get_user_input_with_prompt(stdscr, row, col, prompt):
+    curses.echo()
+    stdscr.addstr(row, col, prompt)
+    stdscr.refresh()
+    curses.curs_set(1)
+    input = stdscr.getstr(row, col + len(prompt))
+    curses.curs_set(0)
+    return input  # ^^^^  reading input at next column
+
+
+def print_user_alert(stdscr, alert):
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    stdscr.addstr(0, 30, alert)
+    stdscr.chgat(0, 30, len(alert), curses.A_BOLD | curses.color_pair(2))
+
+
+def print_user_error(stdscr, error):
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+    stdscr.addstr(0, 30, "Error: " + error)
+    stdscr.chgat(0, 30, len("Error: " + error), curses.A_BOLD | curses.color_pair(3))
+
 
 def key_press_and_print_df(stdscr, df):
     curses.curs_set(0)
     # stdscr = curses.initscr()
     stdscr.clear()
     viewing_area = ViewingArea(8, 2)
+    term_cols, term_rows = viewing_area.get_terminal_size()
     df_window = DFWindow(df, viewing_area)
 
     df_window.add_data_to_screen(stdscr)
+
+    help_view = False
+    err_string = ""
     stdscr.addstr(0, 0, df_window.get_location_string())
+
+    # On first open only, add hint for help menu
+    # NOTE: could leave it up, also.
+    print_user_alert(stdscr, "Press ' (single quote) for help menu")
     stdscr.refresh()
 
-    key = -1
+    key = keys.NULL_KEY
     # The scroller loop
-    while key not in [ENTER, QUIT]:
+    while key not in [keys.ENTER, keys.QUIT]:
+        err_string = ""
         key = stdscr.getch()
         # Movement based on vim keys
-        if key in [SCROLL_LEFT, curses.KEY_LEFT]:
+        if key in [keys.SCROLL_LEFT, curses.KEY_LEFT]:
             df_window.move_left()
-        elif key in [SCROLL_RIGHT, curses.KEY_RIGHT]:
+        elif key in [keys.SCROLL_RIGHT, curses.KEY_RIGHT]:
             df_window.move_right()
-        elif key in [SCROLL_DOWN, curses.KEY_DOWN]:
+        elif key in [keys.SCROLL_DOWN, curses.KEY_DOWN]:
             df_window.move_down()
-        elif key in [SCROLL_UP, curses.KEY_UP]:
+        elif key in [keys.SCROLL_UP, curses.KEY_UP]:
             df_window.move_up()
+
         # Moving fast
-        elif key == PAGE_DOWN:
+        elif key == keys.PAGE_DOWN:
             df_window.page_down()
-        elif key == PAGE_UP:
+        elif key == keys.PAGE_UP:
             df_window.page_up()
+
+        # alternate views
+        elif key == keys.HIGHLIGHT:
+            df_window.toggle_highlight_mode()
+
+        elif key == keys.HELP:
+            help_view = not help_view
+
+        # search functionality
+        elif key == keys.LINE_SEARCH:
+            search_string = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                       "Goto line: ")
+            if len(search_string) > 0:
+                try:
+                    df_window.line_search(int(search_string))
+                except ValueError:
+                    err_string = "Please enter a valid (integer) line number"
+
+        elif key == keys.FILTER:
+            query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                     "Column filter: ")
+            query_string = query_bytes.decode(encoding="utf-8")
+            if len(query_string) > 0:
+                df_window = df_window.filter(query_string, viewing_area)
+                # NOTE: if column names are invalid,
+                # an empty dataframe is returned.
+                # We could preempt this if we wanted.
+
+        elif key == keys.QUERY:
+            query_bytes = get_user_input_with_prompt(stdscr, term_rows - 1, 0,
+                                                     "SQL query (use 'df' as table name): ")
+            query_string = query_bytes.decode(encoding="utf-8")
+            if len(query_string) > 0:
+                try:
+                    df_window = df_window.query(query_string, viewing_area)
+                except:  # noqa: E722
+                    err_string = "Syntax error in query"
+                    # TODO(johncmerfeld): be more specific with this error
+
+        elif key == keys.BACK:
+            # exit query mode, essentially
+            df_window = DFWindow(df, viewing_area)
+
         elif key == curses.KEY_RESIZE:
-            print("Terminal resized. Please restart the scroller")
-            break
+            viewing_area = ViewingArea(8, 2)
+            term_cols, term_rows = viewing_area.get_terminal_size()
+            df_window.update_viewing_area(viewing_area)
+            df_window.add_data_to_screen(stdscr)
 
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
         stdscr.addstr(0, 0, df_window.get_location_string())
+
+        if help_view:
+            show_help_view(stdscr, term_cols, term_rows)
+
+        if err_string:
+            print_user_error(stdscr, err_string)
+
         stdscr.refresh()
 
     stdscr.clear()
@@ -366,10 +554,7 @@ def scroll(scrollable):
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
 
-def scroll_csv(csv_path,
-               sep,
-               encoding):
-
+def scroll_csv(csv_path, sep, encoding):
     pandas_df = pd.read_csv(csv_path,
                             dtype=object,
                             sep=sep,

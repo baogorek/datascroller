@@ -51,14 +51,34 @@ up to resemble Vim's edit mode.
 The following keys are currently supported:
 
 - Movement
-  + h: move to the left
-  + j: move down
-  + k: move up
-  + l: move left 
+  + `h`: move to the left
+  + `j`: move down
+  + `k`: move up
+  + `l`: move left
 
 - Quick Movement
-  + Ctrl + F: Page down
-  + Ctrl + B: Page up (not working as well for some reason)
+  + `Ctrl + F`: Page down
+  + `Ctrl + B`: Page up (not working as well for some reason)
+
+- Highlight mode
+  + Press `,` to highlight the current line for easier horizontal reading.
+  + Scrolling up and down will move the highlight bar within the window
+  + Press `,` again to exit highlight mode
+
+- Goto line
+  + Press `;`, then type a line number (e.g. `:1000`) and press `Enter`
+
+- Filter columns
+  + Press `.`, then type a comma-separated list of columns (e.g. `.name, age, survived`) and press `Enter`
+
+- SQL querying
+  + Press `/`, then type your query (use 'df' as the table name)
+  + e.g. `/SELECT AVG(age) AS average_age, sex, survived FROM df GROUP BY sex, survived`
+  + Then press `Enter`
+  + Note that you can execute new queries against the data frame you just created, or go back
+
+- Return from query/filter view to entire data frame
+  + b
 
 - Exiting
   + q
@@ -109,7 +129,7 @@ def get_dataframe_window(self):
 ```
 DFWindow must be aware of the viewing area in order to set an appropriate value
 of `self.c_2`, and hence DFWindow requires an instance of ViewingArea for
-initialization. 
+initialization.
 ```
 import pandas as pd
 from datascroller.scroller import DFWindow
