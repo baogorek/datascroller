@@ -16,7 +16,6 @@ class DFWindow:
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
-
         self.reader = reader
 
         self.rows_to_print = (self.viewing_area.bottommost_char -
