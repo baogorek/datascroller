@@ -21,6 +21,10 @@ setup(
         'windows-curses ; platform_system=="Windows"',
         'pandasql'
     ],
+    extras_require={
+        'testing': ['pytest'],
+        'linting': ['flake8'],
+    },
     entry_points={
         'console_scripts': [
             'scroll_demo=datascroller.command_line:run_demo',
