@@ -11,11 +11,13 @@ from datascroller import keybindings as keys
 class DFWindow:
     """The data frame window"""
 
-    def __init__(self, pandas_df, viewing_area):
+    def __init__(self, pandas_df, viewing_area, reader=None):
         self.full_df = pandas_df
         (self.total_rows, self.total_cols) = pandas_df.shape
 
         self.viewing_area = viewing_area
+
+        self.reader = reader
 
         self.rows_to_print = (self.viewing_area.bottommost_char -
                               self.viewing_area.topmost_char + 1)
@@ -212,6 +214,14 @@ class DFWindow:
         #    from_index = query_words.index("from")
         #    table_name = query_words[from_index + 1]
         #    exec("%s = %d" % (table_name, self.full_df))
+
+    def get_next_chunk(self):
+        try:
+            df = self.reader.get_chunk()
+        # if we reach the last chunk, just stop there
+        except StopIteration:
+            df = self.full_df
+        return DFWindow(df, self.viewing_area, self.reader)
 
 
 class ViewingArea:
@@ -442,13 +452,13 @@ def print_user_error(stdscr, error):
     stdscr.chgat(0, 30, len("Error: " + error), curses.A_BOLD | curses.color_pair(3))
 
 
-def key_press_and_print_df(stdscr, df):
+def key_press_and_print_df(stdscr, df, reader=None):
     curses.curs_set(0)
     # stdscr = curses.initscr()
     stdscr.clear()
     viewing_area = ViewingArea(8, 2)
     term_cols, term_rows = viewing_area.get_terminal_size()
-    df_window = DFWindow(df, viewing_area)
+    df_window = DFWindow(df, viewing_area, reader)
 
     df_window.add_data_to_screen(stdscr)
 
@@ -530,6 +540,9 @@ def key_press_and_print_df(stdscr, df):
             df_window.update_viewing_area(viewing_area)
             df_window.add_data_to_screen(stdscr)
 
+        elif reader is not None and key == keys.NEXT_CHUNK:
+            df_window = df_window.get_next_chunk()
+
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
         stdscr.addstr(0, 0, df_window.get_location_string())
@@ -547,38 +560,24 @@ def key_press_and_print_df(stdscr, df):
     curses.endwin()
 
 
-def scroll(scrollable):
-    if isinstance(scrollable, pd.core.frame.DataFrame):
-        curses.wrapper(key_press_and_print_df, scrollable)
+def scroll(df_or_reader):
+    if isinstance(df_or_reader, pd.core.frame.DataFrame):
+        curses.wrapper(key_press_and_print_df, df_or_reader)
+    elif isinstance(df_or_reader, pd.io.parsers.TextFileReader):
+        first_chunk = df_or_reader.get_chunk()
+        curses.wrapper(key_press_and_print_df, first_chunk, df_or_reader)
     else:
-        print('type ' + str(type(scrollable)) + ' not yet scrollable!')
+        print('type ' + str(type(df_or_reader)) + ' not yet scrollable!')
 
 
-def scroll_by_chunk(readable):
-    if isinstance(readable, pd.io.parsers.TextFileReader):
-        first_chunk = readable.get_chunk()
-        curses.wrapper(key_press_and_print_df, first_chunk)
-    else:
-        print('type ' + str(type(readable)) + ' not yet readable!')
-
-
-def scroll_csv(csv_path, sep, encoding, escapechar, nrows, chunksize):
-    print(chunksize)
+def scroll_csv(csv_path, sep, encoding, nrows, chunksize):
     df_or_reader = pd.read_csv(csv_path,
                                dtype=object,
                                sep=sep,
                                encoding=encoding,
                                nrows=nrows,
                                chunksize=chunksize)
-
-    print('here')
-
-    if isinstance(df_or_reader, pd.core.frame.DataFrame):
-        scroll(df_or_reader)
-    elif isinstance(df_or_reader, pd.io.parsers.TextFileReader):
-        scroll_by_chunk(df_or_reader)
-    else:
-        print('cannot process type ' + str(type(df_or_reader)))
+    scroll(df_or_reader)
 
 
 def main():

@@ -18,3 +18,5 @@ FILTER = 46  # '.'
 QUERY = 47  # '/'
 LINE_SEARCH = 59  # ';'
 BACK = 98  # 'b'
+
+NEXT_CHUNK = 110 # 'n'
