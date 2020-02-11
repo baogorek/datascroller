@@ -554,12 +554,31 @@ def scroll(scrollable):
         print('type ' + str(type(scrollable)) + ' not yet scrollable!')
 
 
-def scroll_csv(csv_path, sep, encoding):
-    pandas_df = pd.read_csv(csv_path,
-                            dtype=object,
-                            sep=sep,
-                            encoding=encoding)
-    scroll(pandas_df)
+def scroll_by_chunk(readable):
+    if isinstance(readable, pd.io.parsers.TextFileReader):
+        first_chunk = readable.get_chunk()
+        curses.wrapper(key_press_and_print_df, first_chunk)
+    else:
+        print('type ' + str(type(readable)) + ' not yet readable!')
+
+
+def scroll_csv(csv_path, sep, encoding, escapechar, nrows, chunksize):
+    print(chunksize)
+    df_or_reader = pd.read_csv(csv_path,
+                               dtype=object,
+                               sep=sep,
+                               encoding=encoding,
+                               nrows=nrows,
+                               chunksize=chunksize)
+
+    print('here')
+
+    if isinstance(df_or_reader, pd.core.frame.DataFrame):
+        scroll(df_or_reader)
+    elif isinstance(df_or_reader, pd.io.parsers.TextFileReader):
+        scroll_by_chunk(df_or_reader)
+    else:
+        print('cannot process type ' + str(type(df_or_reader)))
 
 
 def main():
