@@ -19,5 +19,9 @@ HELP = "Show/hide help - "
 HELP_TEXT = "'"
 EXIT = "Exit scroller - "
 EXIT_TEXT = "q"
+NEXT = "Next chunk - "
+NEXT_TEXT = "n"
 
-MENU_OPTIONS = ['SCROLL', 'JUMP', 'GOTO', 'FILTER', 'QUERY', 'BACK', 'HIGHLIGHT', 'ZOOM', 'HELP', 'EXIT']
+MENU_OPTIONS = ['SCROLL', 'JUMP', 'GOTO', 'FILTER', 'QUERY', 'BACK', 'HIGHLIGHT', 'ZOOM', 'HELP', 'EXIT', 'NEXT']
+
+HELP_BOX_WIDTH = 40

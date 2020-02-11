@@ -417,9 +417,9 @@ def add_help_string(screen, cols):
 
 
 def show_help_view(screen, cols, rows):
-    # TODO(johncmerfeld): too many constants in here
-    width = 40
-    height = 13
+
+    width = help.HELP_BOX_WIDTH
+    height = len(help.MENU_OPTIONS) + 3
     box1 = screen.subwin(height, width, 1, cols - width)
     box2 = screen.subwin(height - 2, width - 2, 2, cols - width + 1)
     box1.immedok(True)  # updates automatically
