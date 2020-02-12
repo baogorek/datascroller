@@ -61,7 +61,7 @@ jobs:
           name: Upload to PyPi
           command: |
             if [ "${CIRCLE_BRANCH}" == "dev" ]; then
-              twine upload --repository testpypi dist/*
+              twine upload --repository testpypi --verbose dist/*
             elif [ "${CIRCLE_BRANCH}" == "master" ]; then
               twine upload dist/*
             fi
