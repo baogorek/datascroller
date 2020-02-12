@@ -10,9 +10,6 @@ See datascroller in action on [YouTube](http://www.youtube.com/watch?v=mewJAcurJ
 
 [![datascroller](resources/datascroller_video.png)](http://www.youtube.com/watch?v=mewJAcurJPg "datascroller")
 
-## CircleCI Build Status
-[![baogorek](https://circleci.com/gh/baogorek/datascroller/tree/circle-ci.svg?style=svg)](https://circleci.com/gh/baogorek/datascroller/tree/circle-ci.svg?style=svg)
-
 ## Installation
 ### via pip
 ```
