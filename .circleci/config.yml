@@ -16,7 +16,7 @@ jobs:
       # Take advantage of latest cache of dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
+            - v1-dependencies-{{ checksum "requirements.txt" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
@@ -26,7 +26,7 @@ jobs:
             sudo pip install -r .circleci/requirements.txt
 
       - save_cache:
-          key: v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
           paths:
             - ~/.cache 
 
@@ -61,7 +61,8 @@ jobs:
       - deploy:
           name: Upload to PyPi
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              sudo pip install twine
+            if [ "${CIRCLE_BRANCH}" == "dev" ]; then
+              twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+            elif [ "${CIRCLE_BRANCH}" == "master" ]; then
               twine upload dist/*
             fi
