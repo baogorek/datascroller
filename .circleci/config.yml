@@ -48,9 +48,10 @@ jobs:
       - run:
           name: init .pypirc
           command: |
-            echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            python create_pypirc.py $PYPI_USERNAME $PYPI_PASSWORD > .pypirc
+            #echo -e "[pypi]" >> ~/.pypirc
+            #echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
+            #echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
 
       - run:
           name: create packages
@@ -62,7 +63,7 @@ jobs:
           name: Upload to PyPi
           command: |
             if [ "${CIRCLE_BRANCH}" == "dev" ]; then
-              twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+              twine upload --repository testpypi dist/*
             elif [ "${CIRCLE_BRANCH}" == "master" ]; then
               twine upload dist/*
             fi
