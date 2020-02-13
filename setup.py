@@ -45,3 +45,12 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
 )
+
+LONG_DESCRIPTION = """
+Welcome to the datascroller project! While IDEs and notebooks are excellent
+for interactive data exploration, there will always be some of us who prefer
+to stay in the terminal. For exploring Pandas data frames, that meant
+painstakingly tedius use of `.iloc`, until now...
+
+For more info, please see our github page: github.com/baogorek/datascroller
+"""
