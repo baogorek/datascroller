@@ -1,7 +1,13 @@
 from setuptools import setup
 
-with open('README.md') as f:
-    long_description = f.read()
+LONG_DESCRIPTION = """
+Welcome to the datascroller project! While IDEs and notebooks are excellent
+for interactive data exploration, there will always be some of us who prefer
+to stay in the terminal. For exploring Pandas data frames, that meant
+painstakingly tedius use of `.iloc`, until now...
+
+For more info, please see our github page: github.com/baogorek/datascroller
+"""
 
 setup(
     name='datascroller',
@@ -9,7 +15,7 @@ setup(
     version='1.3.0rc1',
     license='MIT',
     description='Data scrolling in the terminal',
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author='Ben Ogorek, John C. Merfeld, Kevin Merfeld',
     author_email='baogorek@gmail.com, john.merfeld@gmail.com, kevinjmerfeld@gmail.com',
@@ -45,12 +51,3 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
 )
-
-LONG_DESCRIPTION = """
-Welcome to the datascroller project! While IDEs and notebooks are excellent
-for interactive data exploration, there will always be some of us who prefer
-to stay in the terminal. For exploring Pandas data frames, that meant
-painstakingly tedius use of `.iloc`, until now...
-
-For more info, please see our github page: github.com/baogorek/datascroller
-"""
