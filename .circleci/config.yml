@@ -16,27 +16,27 @@ jobs:
       # Take advantage of latest cache of dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
+            - v1-dependencies-{{ checksum "requirements.txt" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - run:
           name: Install dependencies
           command: |
-            sudo pip install -r .circleci/requirements.txt
+            sudo pip install -r requirements.txt
 
       - save_cache:
-          key: v1-dependencies-{{ checksum ".circleci/requirements.txt" }}
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
           paths:
             - ~/.cache 
 
       - run:
           name: Run linter
           command: |
-            # stop the build if there are Python syntax errors or undefined names
+            # stop build if there are Python syntax errors or undefined names
             flake8 datascroller --count --select=E901,E999,F821,F822,F823 \
               --show-source --statistics
-            # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide      
+            # exit-zero treats all errors as warnings. GitHub editor: 127 chars
             flake8 datascroller --count --exit-zero --max-complexity=10 \
               --max-line-length=127 --statistics
 
@@ -48,20 +48,20 @@ jobs:
       - run:
           name: init .pypirc
           command: |
-            echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            python .circleci/create_pypirc.py \
+              $PYPI_USERNAME $PYPI_PASSWORD > ~/.pypirc
 
       - run:
           name: create packages
           command: |
             python setup.py sdist
             python setup.py bdist_wheel
-            
+
       - deploy:
           name: Upload to PyPi
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              sudo pip install twine
+            if [ "${CIRCLE_BRANCH}" == "dev" ]; then
+              twine upload --repository testpypi --verbose dist/*
+            elif [ "${CIRCLE_BRANCH}" == "master" ]; then
               twine upload dist/*
             fi
