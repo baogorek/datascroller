@@ -458,7 +458,7 @@ def key_press_and_print_df(stdscr, df):
 
     # On first open only, add hint for help menu
     # NOTE: could leave it up, also.
-    print_user_alert(stdscr, "Press ' (single quote) for help menu")
+    print_user_alert(stdscr, help.HELP_MESSAGE)
     stdscr.refresh()
 
     key = keys.NULL_KEY
@@ -533,6 +533,7 @@ def key_press_and_print_df(stdscr, df):
         stdscr.clear()
         df_window.add_data_to_screen(stdscr)
         stdscr.addstr(0, 0, df_window.get_location_string())
+        print_user_alert(stdscr, help.HELP_MESSAGE)
 
         if help_view:
             show_help_view(stdscr, term_cols, term_rows)

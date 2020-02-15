@@ -21,3 +21,5 @@ EXIT = "Exit scroller - "
 EXIT_TEXT = "q"
 
 MENU_OPTIONS = ['SCROLL', 'JUMP', 'GOTO', 'FILTER', 'QUERY', 'BACK', 'HIGHLIGHT', 'ZOOM', 'HELP', 'EXIT']
+
+HELP_MESSAGE = "Press ' (single quote) for help menu"
