@@ -60,6 +60,18 @@ def create_parser():
                         default=None,
                         help='encoding to use for UTF when reading csv'
                         )
+    parser.add_argument('--nrows',
+                        dest='nrows',
+                        default=None,
+                        type=int,
+                        help='number of rows of file to read'
+                        )
+    parser.add_argument('--chunksize',
+                        dest='chunksize',
+                        default=None,
+                        type=int,
+                        help='number of rows to read into memory at once'
+                        )
     return parser
 
 
@@ -70,4 +82,6 @@ def run_scroll(input_args=None):
 
     scroll_csv(args.csv_filepath,
                sep=args.sep,
-               encoding=args.encoding)
+               encoding=args.encoding,
+               nrows=args.nrows,
+               chunksize=args.chunksize)

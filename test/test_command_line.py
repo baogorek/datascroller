@@ -14,7 +14,9 @@ def test_default():
 
     expected = {'csv_filepath': path,
                 'sep': ',',
-                'encoding': None}
+                'encoding': None,
+                'nrows': None,
+                'chunksize': None}
 
     assert expected == get_args([path])
 
@@ -23,10 +25,14 @@ def test_options():
 
     sep = '|'
     encoding = 'utf-16'
-    args = [path, '--sep', sep, '--encoding', encoding]
+    nrows = 1000
+    chunksize = 1000
+    args = [path, '--sep', sep, '--encoding', encoding, '--nrows', str(nrows), '--chunksize', str(chunksize)]
 
     expected = {'csv_filepath': path,
                 'sep': sep,
-                'encoding': encoding}
+                'encoding': encoding,
+                'nrows': nrows,
+                'chunksize': chunksize}
 
     assert expected == get_args(args)
