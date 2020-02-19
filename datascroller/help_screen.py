@@ -25,3 +25,5 @@ EXIT_TEXT = "q"
 MENU_OPTIONS = ['SCROLL', 'JUMP', 'GOTO', 'FILTER', 'QUERY', 'BACK', 'HIGHLIGHT', 'ZOOM', 'HELP', 'NEXT', 'EXIT']
 
 HELP_BOX_WIDTH = 40
+
+HELP_MESSAGE = "Press ' (single quote) for help menu"
