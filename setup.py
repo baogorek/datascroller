@@ -12,7 +12,7 @@ For more info, please see our github page: github.com/baogorek/datascroller
 setup(
     name='datascroller',
     packages=['datascroller'],
-    version='1.3.3',
+    version='1.4.0',
     license='MIT',
     description='Data scrolling in the terminal',
     long_description=LONG_DESCRIPTION,
