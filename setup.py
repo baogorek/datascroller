@@ -25,7 +25,8 @@ setup(
     install_requires=[
         'pandas',
         'windows-curses ; platform_system=="Windows"',
-        'pandasql'
+        'pandasql',
+	'fastparquet'
     ],
     extras_require={
         'testing': ['pytest'],
