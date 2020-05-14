@@ -2,7 +2,7 @@ import curses
 import time
 import argparse
 
-from datascroller import scroll, scroll_csv, demo
+from datascroller import scroll, scroll_csv, scroll_parquet, demo
 
 
 def getkey(stdscr):
@@ -47,8 +47,8 @@ def create_parser():
               - q
         """, formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('csv_filepath',
-                        help='a csv filepath, relative or absolute')
+    parser.add_argument('filepath',
+                        help='a path to the file you want to scroll (relative or absolute)')
 
     parser.add_argument('--sep',
                         dest='sep',
@@ -80,8 +80,11 @@ def run_scroll(input_args=None):
     parser = create_parser()
     args = parser.parse_args(input_args)
 
-    scroll_csv(args.csv_filepath,
-               sep=args.sep,
-               encoding=args.encoding,
-               nrows=args.nrows,
-               chunksize=args.chunksize)
+    if args.filepath[-8:] == ".parquet":
+        scroll_parquet(args.filepath)
+    else:
+        scroll_csv(args.filepath,
+                   sep=args.sep,
+                   encoding=args.encoding,
+                   nrows=args.nrows,
+                   chunksize=args.chunksize)

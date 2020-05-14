@@ -579,6 +579,9 @@ def scroll_csv(csv_path, sep, encoding, nrows, chunksize):
                                chunksize=chunksize)
     scroll(df_or_reader)
 
+def scroll_parquet(parquet_path):
+    parquet = pd.read_parquet(parquet_path)
+    scroll(parquet)
 
 def main():
     scroll_csv(sys.argv[1])
