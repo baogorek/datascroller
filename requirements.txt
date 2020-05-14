@@ -1,7 +1,5 @@
 attrs==19.3.0
-cython==0.29.17
 entrypoints==0.3
-fastparquet==0.4.0
 flake8==3.7.9
 importlib-metadata==1.5.0
 mccabe==0.6.1
@@ -12,6 +10,7 @@ pandas==1.0.1
 pandasql==0.7.3
 pluggy==0.13.1
 py==1.8.1
+pyarrow==0.17.0
 pycodestyle==2.5.0
 pyflakes==2.1.1
 pyparsing==2.4.6
