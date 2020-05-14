@@ -1,4 +1,5 @@
 attrs==19.3.0
+cython==0.29.17
 entrypoints==0.3
 fastparquet==0.4.0
 flake8==3.7.9
