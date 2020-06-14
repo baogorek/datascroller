@@ -25,9 +25,9 @@ pip install datascroller
 In a command line environment where datascroller is installed, run
 `scroll_demo` and refer to the "Keys" Section below. Press "q" to quit.
 
-### The CSV scroller binary
+### The file scroller binary –– supports CSVs with any delimiter and parquet files
 In a command line environment where datascroller is installed, run
-`scroll <path to your csv>` and refer to the "Keys" Section for navigation.
+`scroll <path to your file>` and refer to the "Keys" Section for navigation.
 Press "q" to quit.
 
 ### Within Python or iPython
