@@ -29,7 +29,7 @@ def test_options():
     chunksize = 1000
     args = [path, '--sep', sep, '--encoding', encoding, '--nrows', str(nrows), '--chunksize', str(chunksize)]
 
-    expected = {'csv_filepath': path,
+    expected = {'filepath': path,
                 'sep': sep,
                 'encoding': encoding,
                 'nrows': nrows,
