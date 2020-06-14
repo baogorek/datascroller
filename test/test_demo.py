@@ -15,7 +15,7 @@ class DataTests(unittest.TestCase):
         self.assertTrue(control_df.equals(test_df))
 
     def test_read_parquet(self):
-        parquet_path = os.path.join(os.getcwd(), 'datascroller/demo_data/titanic.csv')
+        parquet_path = os.path.join(os.getcwd(), 'datascroller/demo_data/titanic.parquet')
         control_df = pd.read_parquet(parquet_path)
         test_df = demo.read_titanic_parquet()
         self.assertTrue(control_df.equals(test_df))
