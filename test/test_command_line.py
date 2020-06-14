@@ -12,7 +12,7 @@ def get_args(input_args):
 
 def test_default():
 
-    expected = {'csv_filepath': path,
+    expected = {'filepath': path,
                 'sep': ',',
                 'encoding': None,
                 'nrows': None,
