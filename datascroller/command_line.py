@@ -26,13 +26,13 @@ def run_getkey():
 
 
 def run_demo():
-    df = demo.read_titanic()
+    df = demo.read_titanic_csv()
     scroll(df)
 
 
 def create_parser():
     parser = argparse.ArgumentParser(
-        description="""Scroll a CSV from the command line with datascroller
+        description="""Scroll a CSV or parquet from the command line with datascroller
 
             The following keys are currently supported:
             # Movement
