@@ -10,6 +10,7 @@ pandas==1.0.1
 pandasql==0.7.3
 pluggy==0.13.1
 py==1.8.1
+pyarrow==0.17.0
 pycodestyle==2.5.0
 pyflakes==2.1.1
 pyparsing==2.4.6

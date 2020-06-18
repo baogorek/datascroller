@@ -4,7 +4,7 @@ datascroller - data scrolling in the terminal!
 Welcome to the datascroller project! While IDEs and notebooks are excellent
 for interactive data exploration, there will always be some of us who prefer
 to stay in the terminal. For exploring Pandas data frames, that meant
-painstakingly tedius use of `.iloc`, until now...
+painstakingly tedious use of `.iloc`, until now...
 
 See datascroller in action on [YouTube](http://www.youtube.com/watch?v=mewJAcurJPg):
 
@@ -25,21 +25,25 @@ pip install datascroller
 In a command line environment where datascroller is installed, run
 `scroll_demo` and refer to the "Keys" Section below. Press "q" to quit.
 
-### The CSV scroller binary
+### The file scroller binary –– supports CSVs with any delimiter and parquet files
 In a command line environment where datascroller is installed, run
-`scroll <path to your csv>` and refer to the "Keys" Section for navigation.
+`scroll <path to your file>` and refer to the "Keys" Section for navigation.
 Press "q" to quit.
 
 ### Within Python or iPython
 Import the `scroll` function from the `datascroller` module.
-Call `scroll` with a Pandas DataFrame as the sole argument:
 
-```
+```python
 import pandas as pd
 from datascroller import scroll
 
+# Call `scroll` with a Pandas DataFrame as the sole argument:
 my_df = pd.read_csv('<path to your csv>')
 scroll(my_df)
+
+# Or pass a path to scroll directly
+scroll_parquet('<path to your parquet>')
+
 ```
 
 See the "Keys" section below for navidation. Press 'q' to quit viewing.
@@ -86,7 +90,7 @@ The following keys are currently supported:
 ### Examples
 
 Using iPython is a good way to try out datascroller interactively:
-```
+```python
 import pandas as pd
 from datascroller import scroll
 
@@ -95,6 +99,17 @@ train = pd.read_csv(
 
 scroll(train)
 ```
+
+
+Read in the Titanic dataset as a parquet file and view it like any other table:
+```python
+import pandas as pd
+from datascroller import scroll
+
+table = pd.read_parquet("https://raw.githubusercontent.com/baogorek/datascroller/parquet/datascroller/demo_data/titanic.parquet")
+scroll(table)
+```
+
 
 ## Classes within datascroller
 

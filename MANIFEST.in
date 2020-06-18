@@ -1,2 +1,3 @@
 include requirements.txt
 include datascroller/demo_data/*.csv
+include datascroller/demo_data/*.parquet

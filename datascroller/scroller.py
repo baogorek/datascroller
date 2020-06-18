@@ -3,6 +3,7 @@ import shutil
 import curses
 import time
 import pandas as pd
+import pyarrow
 from pandasql import sqldf
 from datascroller import help_screen as help
 from datascroller import keybindings as keys
@@ -566,6 +567,9 @@ def scroll(df_or_reader):
     elif isinstance(df_or_reader, pd.io.parsers.TextFileReader):
         first_chunk = df_or_reader.get_chunk()
         curses.wrapper(key_press_and_print_df, first_chunk, df_or_reader)
+    elif isinstance(df_or_reader, pyarrow.lib.Table):
+        df = df_or_reader.to_pandas()
+        curses.wrapper(key_press_and_print_df, df)
     else:
         print('type ' + str(type(df_or_reader)) + ' not yet scrollable!')
 
@@ -579,6 +583,9 @@ def scroll_csv(csv_path, sep, encoding, nrows, chunksize):
                                chunksize=chunksize)
     scroll(df_or_reader)
 
+def scroll_parquet(parquet_path):
+    parquet = pd.read_parquet(parquet_path)
+    scroll(parquet)
 
 def main():
     scroll_csv(sys.argv[1])
